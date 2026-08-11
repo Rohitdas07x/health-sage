@@ -23,3 +23,29 @@ Content-Type: application/json
 
 GET http://localhost:5000/api/test-protected
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNzllYThkMTFjOWRlMDAwY2EyZTY5ZSIsImlhdCI6MTc4NjM4NjgzMCwiZXhwIjoxNzg2OTkxNjMwfQ.Md7WK1_ifxfoPKiwPX4M3Xpaz-1WjC_8xGMFbSQTGkU
+
+
+###
+
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "R",
+  "email": "notanemail",
+  "password": "123"
+}
+
+###
+
+POST http://localhost:5000/api/reports/upload
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNzllYThkMTFjOWRlMDAwY2EyZTY5ZSIsImlhdCI6MTc4NjM4NjgzMCwiZXhwIjoxNzg2OTkxNjMwfQ.Md7WK1_ifxfoPKiwPX4M3Xpaz-1WjC_8xGMFbSQTGkU
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< ./sample.pdf
+------WebKitFormBoundary--
+
