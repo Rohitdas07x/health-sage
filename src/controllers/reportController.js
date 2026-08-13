@@ -1,3 +1,5 @@
+const { extractMetricsAndSummaries } = require("../services/groqService");
+const Metric = require("../models/Metric");
 const pdfParse = require("pdf-parse");
 const Report = require("../models/Report");
 
@@ -15,16 +17,43 @@ const uploadReport = async (req, res) => {
       return res.status(400).json({ message: "Could not extract text from PDF" });
     }
 
+    const reportType = req.body.reportType || "blood";
+
+    const aiResult = await extractMetricsAndSummaries(extractedText, reportType);
+    console.log("AI RESULT:", JSON.stringify(aiResult, null, 2));
+
+    const abnormalCount = aiResult.metrics.filter((m) => m.status !== "normal").length;
+
     const report = await Report.create({
       user: req.userId,
       fileName: req.file.originalname,
-      reportType: req.body.reportType || "blood",
+      reportType,
+      patientSummary: aiResult.patientSummary,
+      clinicalSummary: aiResult.clinicalSummary,
+      abnormalCount,
     });
+
+    const metricDocs = aiResult.metrics.map((m) => ({
+      report: report._id,
+      user: req.userId,
+      name: m.name,
+      value: m.value,
+      unit: m.unit,
+      refRangeLow: m.refRangeLow,
+      refRangeHigh: m.refRangeHigh,
+      status: m.status,
+      date: report.uploadDate,
+    }));
+
+    await Metric.insertMany(metricDocs);
 
     res.status(201).json({
       reportId: report._id,
       fileName: report.fileName,
-      extractedTextPreview: extractedText.substring(0, 300),
+      abnormalCount,
+      patientSummary: report.patientSummary,
+      clinicalSummary: report.clinicalSummary,
+      metrics: aiResult.metrics,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

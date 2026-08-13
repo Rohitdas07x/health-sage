@@ -11,6 +11,18 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+const uploadSchema = z.object({
+  reportType: z.enum(["blood", "urine", "imaging", "other"]).optional(),
+});
+
+const validateUpload = (req, res, next) => {
+  const result = uploadSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ errors: result.error.issues.map((i) => i.message) });
+  }
+  next();
+};
+
 const validateRegister = (req, res, next) => {
   const result = registerSchema.safeParse(req.body);
   if (!result.success) {
@@ -27,4 +39,4 @@ const validateLogin = (req, res, next) => {
   next();
 };
 
-module.exports = { validateRegister, validateLogin };
+module.exports = { validateRegister, validateLogin, validateUpload };
