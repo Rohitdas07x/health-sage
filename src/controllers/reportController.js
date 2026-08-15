@@ -2,6 +2,7 @@ const { extractMetricsAndSummaries } = require("../services/groqService");
 const Metric = require("../models/Metric");
 const pdfParse = require("pdf-parse");
 const Report = require("../models/Report");
+const hashText = require("../utils/hash");
 
 
 const uploadReport = async (req, res) => {
@@ -18,6 +19,22 @@ const uploadReport = async (req, res) => {
     }
 
     const reportType = req.body.reportType || "blood";
+    const textHash = hashText(extractedText);
+
+// check if this exact report content was already processed for this user
+const existingReport = await Report.findOne({ user: req.userId, textHash });
+if (existingReport) {
+  const existingMetrics = await Metric.find({ report: existingReport._id });
+  return res.status(200).json({
+    reportId: existingReport._id,
+    fileName: existingReport.fileName,
+    abnormalCount: existingReport.abnormalCount,
+    patientSummary: existingReport.patientSummary,
+    clinicalSummary: existingReport.clinicalSummary,
+    metrics: existingMetrics,
+    cached: true,
+  });
+}
 
     const aiResult = await extractMetricsAndSummaries(extractedText, reportType);
     console.log("AI RESULT:", JSON.stringify(aiResult, null, 2));
@@ -25,13 +42,14 @@ const uploadReport = async (req, res) => {
     const abnormalCount = aiResult.metrics.filter((m) => m.status !== "normal").length;
 
     const report = await Report.create({
-      user: req.userId,
-      fileName: req.file.originalname,
-      reportType,
-      patientSummary: aiResult.patientSummary,
-      clinicalSummary: aiResult.clinicalSummary,
-      abnormalCount,
-    });
+    user: req.userId,
+     fileName: req.file.originalname,
+    reportType,
+    textHash,
+    patientSummary: aiResult.patientSummary,
+    clinicalSummary: aiResult.clinicalSummary,
+    abnormalCount,
+   });
 
     const metricDocs = aiResult.metrics.map((m) => ({
       report: report._id,
