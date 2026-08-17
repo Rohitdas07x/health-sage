@@ -77,5 +77,26 @@ if (existingReport) {
     res.status(500).json({ message: error.message });
   }
 };
+const getReports = async (req, res) => {
+  try {
+    const reports = await Report.find({ user: req.userId }).sort({ uploadDate: -1 });
+    res.status(200).json(reports);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-module.exports = { uploadReport };
+const getReportById = async (req, res) => {
+  try {
+    const report = await Report.findOne({ _id: req.params.id, user: req.userId });
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+    const metrics = await Metric.find({ report: report._id });
+    res.status(200).json({ report, metrics });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { uploadReport, getReports, getReportById };
