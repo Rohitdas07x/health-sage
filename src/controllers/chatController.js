@@ -72,10 +72,12 @@ If the user asks about seeing a doctor or specialist, or where to get checked, u
     ];
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages,
-      temperature: 0.4,
-    });
+  model: "openai/gpt-oss-120b",
+  messages,
+  temperature: 0.4,
+  max_tokens: 4096,
+  reasoning_effort: "low",
+});
 
     const reply = completion.choices[0].message.content.trim();
 

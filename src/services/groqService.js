@@ -47,15 +47,23 @@ ${rawText}`;
 };
 
 const extractMetricsAndSummaries = async (rawText, reportType = "blood") => {
-  const prompt = buildPrompt(rawText, reportType);
+  // limit text length to avoid exceeding token limits on large/multi-page PDFs
+  const MAX_CHARS = 6000;
+  const trimmedText = rawText.length > MAX_CHARS ? rawText.substring(0, MAX_CHARS) : rawText;
+
+  const prompt = buildPrompt(trimmedText, reportType);
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.2,
+    max_tokens: 4096,
+    reasoning_effort: "low",
   });
 
   const responseText = completion.choices[0].message.content.trim();
+  console.log("RAW GROQ RESPONSE:", JSON.stringify(responseText));
+  console.log("FINISH REASON:", completion.choices[0].finish_reason);
 
   let cleanedText = responseText;
   if (cleanedText.startsWith("```")) {
