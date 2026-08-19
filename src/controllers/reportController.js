@@ -7,6 +7,7 @@ const hashText = require("../utils/hash");
 const { getSpecialistForMetric } = require("../utils/specialistMap");
 const { findNearbyHospitals } = require("../services/placesService");
 
+
 // ============================================================
 // UPLOAD REPORT
 // ============================================================
@@ -241,7 +242,7 @@ const getMetricTrends = async (req, res) => {
       });
     });
 
-    res.json({
+    res.status(200).json({
       trends: grouped,
     });
 
@@ -256,50 +257,380 @@ const getMetricTrends = async (req, res) => {
 
 
 // ============================================================
-// FIND NEARBY HOSPITALS / CLINICS
+// COMPARE TWO REPORTS
 // ============================================================
+// This compares two reports belonging to the logged-in user.
 //
-// GET /api/reports/nearby?latitude=22.57&longitude=88.36
+// Expected request:
+// GET /api/reports/compare?report1=REPORT_ID&report2=REPORT_ID
 //
-// Frontend থেকে latitude + longitude আসবে
-// তারপর Overpass + Geoapify + Wikidata search হবে
+// The controller compares common metrics between the two reports.
 // ============================================================
 
-const findHospitals = async (req, res) => {
+const compareReports = async (req, res) => {
   try {
-    const { latitude, longitude } = req.body;
+    const { report1, report2 } = req.query;
 
-    if (
-      typeof latitude !== "number" ||
-      typeof longitude !== "number"
-    ) {
+    // ----------------------------------------------------------
+    // VALIDATE REPORT IDS
+    // ----------------------------------------------------------
+
+    if (!report1 || !report2) {
       return res.status(400).json({
-        message: "Valid latitude and longitude are required",
+        message: "Both report1 and report2 are required",
       });
     }
 
-    const result = await findNearbyHospitals(
-      latitude,
-      longitude
+    if (report1 === report2) {
+      return res.status(400).json({
+        message: "Please select two different reports",
+      });
+    }
+
+    // ----------------------------------------------------------
+    // FIND BOTH REPORTS
+    // ----------------------------------------------------------
+
+    const reports = await Report.find({
+      _id: { $in: [report1, report2] },
+      user: req.userId,
+    }).lean();
+
+    if (reports.length !== 2) {
+      return res.status(404).json({
+        message: "One or both reports were not found",
+      });
+    }
+
+    const firstReport =
+      reports.find(
+        (r) => r._id.toString() === report1
+      );
+
+    const secondReport =
+      reports.find(
+        (r) => r._id.toString() === report2
+      );
+
+    // ----------------------------------------------------------
+    // FIND METRICS FOR BOTH REPORTS
+    // ----------------------------------------------------------
+
+    const [firstMetrics, secondMetrics] = await Promise.all([
+      Metric.find({
+        report: firstReport._id,
+        user: req.userId,
+      }).lean(),
+
+      Metric.find({
+        report: secondReport._id,
+        user: req.userId,
+      }).lean(),
+    ]);
+
+    // ----------------------------------------------------------
+    // CREATE MAPS BY METRIC NAME
+    // ----------------------------------------------------------
+
+    const firstMetricMap = new Map();
+
+    firstMetrics.forEach((metric) => {
+      firstMetricMap.set(
+        metric.name.toLowerCase().trim(),
+        metric
+      );
+    });
+
+    const secondMetricMap = new Map();
+
+    secondMetrics.forEach((metric) => {
+      secondMetricMap.set(
+        metric.name.toLowerCase().trim(),
+        metric
+      );
+    });
+
+    // ----------------------------------------------------------
+    // FIND COMMON METRICS
+    // ----------------------------------------------------------
+
+    const commonMetricNames = [
+      ...new Set([
+        ...firstMetricMap.keys(),
+        ...secondMetricMap.keys(),
+      ]),
+    ];
+
+    // ----------------------------------------------------------
+    // COMPARE METRICS
+    // ----------------------------------------------------------
+
+    const comparison = [];
+
+    commonMetricNames.forEach((metricName) => {
+      const oldMetric =
+        firstMetricMap.get(metricName);
+
+      const newMetric =
+        secondMetricMap.get(metricName);
+
+      // If metric exists only in first report
+      if (!newMetric) {
+        comparison.push({
+          name: oldMetric.name,
+          unit: oldMetric.unit,
+
+          previousValue: oldMetric.value,
+          latestValue: null,
+
+          previousStatus: oldMetric.status,
+          latestStatus: null,
+
+          change: null,
+          changeType: "removed",
+          direction: "—",
+
+          refRangeLow: oldMetric.refRangeLow,
+          refRangeHigh: oldMetric.refRangeHigh,
+        });
+
+        return;
+      }
+
+      // If metric exists only in second report
+      if (!oldMetric) {
+        comparison.push({
+          name: newMetric.name,
+          unit: newMetric.unit,
+
+          previousValue: null,
+          latestValue: newMetric.value,
+
+          previousStatus: null,
+          latestStatus: newMetric.status,
+
+          change: null,
+          changeType: "new",
+          direction: "new",
+
+          refRangeLow: newMetric.refRangeLow,
+          refRangeHigh: newMetric.refRangeHigh,
+        });
+
+        return;
+      }
+
+      // --------------------------------------------------------
+      // NUMERIC CHANGE
+      // --------------------------------------------------------
+
+      const previousValue = Number(oldMetric.value);
+      const latestValue = Number(newMetric.value);
+
+      let change = null;
+
+      if (
+        Number.isFinite(previousValue) &&
+        Number.isFinite(latestValue)
+      ) {
+        change =
+          latestValue - previousValue;
+      }
+
+      // --------------------------------------------------------
+      // DETERMINE DIRECTION
+      // --------------------------------------------------------
+
+      let direction = "stable";
+      let changeType = "stable";
+
+      if (change !== null) {
+        if (change > 0) {
+          direction = "up";
+          changeType = "increased";
+        } else if (change < 0) {
+          direction = "down";
+          changeType = "decreased";
+        }
+      }
+
+      // --------------------------------------------------------
+      // DETERMINE HEALTH IMPACT
+      // --------------------------------------------------------
+
+      let healthImpact = "stable";
+
+      if (
+        oldMetric.status === "abnormal" &&
+        newMetric.status === "normal"
+      ) {
+        healthImpact = "improved";
+      } else if (
+        oldMetric.status === "normal" &&
+        newMetric.status === "abnormal"
+      ) {
+        healthImpact = "worsened";
+      } else if (
+        oldMetric.status === "borderline" &&
+        newMetric.status === "normal"
+      ) {
+        healthImpact = "improved";
+      } else if (
+        oldMetric.status === "normal" &&
+        newMetric.status === "borderline"
+      ) {
+        healthImpact = "worsened";
+      } else if (
+        oldMetric.status === "abnormal" &&
+        newMetric.status === "borderline"
+      ) {
+        healthImpact = "improved";
+      } else if (
+        oldMetric.status === "borderline" &&
+        newMetric.status === "abnormal"
+      ) {
+        healthImpact = "worsened";
+      }
+
+      // --------------------------------------------------------
+      // ADD COMPARISON
+      // --------------------------------------------------------
+
+      comparison.push({
+        name: newMetric.name,
+        unit: newMetric.unit,
+
+        previousValue,
+        latestValue,
+
+        previousStatus: oldMetric.status,
+        latestStatus: newMetric.status,
+
+        change,
+
+        changeType,
+        direction,
+        healthImpact,
+
+        refRangeLow:
+          newMetric.refRangeLow ??
+          oldMetric.refRangeLow,
+
+        refRangeHigh:
+          newMetric.refRangeHigh ??
+          oldMetric.refRangeHigh,
+      });
+    });
+
+    // ----------------------------------------------------------
+    // SORT
+    // ----------------------------------------------------------
+
+    comparison.sort((a, b) =>
+      a.name.localeCompare(b.name)
     );
 
-    return res.status(200).json({
-      hospitals: result.places,
-      searchRadiusKm: result.searchRadiusKm,
+    // ----------------------------------------------------------
+    // SUMMARY COUNTS
+    // ----------------------------------------------------------
+
+    const improvedCount =
+      comparison.filter(
+        (m) => m.healthImpact === "improved"
+      ).length;
+
+    const worsenedCount =
+      comparison.filter(
+        (m) => m.healthImpact === "worsened"
+      ).length;
+
+    const stableCount =
+      comparison.filter(
+        (m) => m.healthImpact === "stable"
+      ).length;
+
+    const newCount =
+      comparison.filter(
+        (m) => m.changeType === "new"
+      ).length;
+
+    const removedCount =
+      comparison.filter(
+        (m) => m.changeType === "removed"
+      ).length;
+
+    // ----------------------------------------------------------
+    // OVERALL SUMMARY
+    // ----------------------------------------------------------
+
+    let overallStatus = "stable";
+    let overallMessage =
+      "Your health metrics are mostly stable between these reports.";
+
+    if (improvedCount > worsenedCount) {
+      overallStatus = "improved";
+
+      overallMessage =
+        `Overall, more metrics improved (${improvedCount}) than worsened (${worsenedCount}) compared with the previous report.`;
+    } else if (worsenedCount > improvedCount) {
+      overallStatus = "worsened";
+
+      overallMessage =
+        `Some health metrics need attention. ${worsenedCount} metric(s) worsened compared with the previous report.`;
+    }
+
+    // ----------------------------------------------------------
+    // RESPONSE
+    // ----------------------------------------------------------
+
+    res.status(200).json({
+      reports: {
+        previous: {
+          id: firstReport._id,
+          fileName: firstReport.fileName,
+          reportType: firstReport.reportType,
+          uploadDate: firstReport.uploadDate,
+          abnormalCount: firstReport.abnormalCount,
+        },
+
+        latest: {
+          id: secondReport._id,
+          fileName: secondReport.fileName,
+          reportType: secondReport.reportType,
+          uploadDate: secondReport.uploadDate,
+          abnormalCount: secondReport.abnormalCount,
+        },
+      },
+
+      summary: {
+        overallStatus,
+        overallMessage,
+
+        improvedCount,
+        worsenedCount,
+        stableCount,
+        newCount,
+        removedCount,
+      },
+
+      comparison,
     });
 
   } catch (error) {
-    console.error("Find hospitals error:", error);
+    console.error(
+      "Compare reports error:",
+      error
+    );
 
-    return res.status(500).json({
-      message: "Could not find nearby hospitals",
+    res.status(500).json({
+      message: error.message,
     });
   }
 };
 
 
 // ============================================================
-// EXPORTS
+// EXPORT CONTROLLERS
 // ============================================================
 
 module.exports = {
@@ -307,5 +638,5 @@ module.exports = {
   getReports,
   getReportById,
   getMetricTrends,
-  findHospitals,
+  compareReports,
 };

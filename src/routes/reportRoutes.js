@@ -7,14 +7,16 @@ const {
   getReports,
   getReportById,
   getMetricTrends,
-  findHospitals,
+  compareReports,
 } = require("../controllers/reportController");
 
 const protect = require("../middleware/auth.middleware");
 
 const upload = require("../middleware/upload.middleware");
 
-const { validateUpload } = require("../middleware/validate.middleware");
+const {
+  validateUpload,
+} = require("../middleware/validate.middleware");
 
 
 // ============================================================
@@ -44,15 +46,16 @@ router.get(
 
 
 // ============================================================
-// FIND NEARBY HOSPITALS / CLINICS
-// GET /api/reports/nearby?latitude=22.57&longitude=88.36
+// COMPARE TWO REPORTS
+// GET /api/reports/compare?report1=ID1&report2=ID2
 // ============================================================
 
-router.post(
-  "/hospitals",
+router.get(
+  "/compare",
   protect,
-  findHospitals
+  compareReports
 );
+
 
 // ============================================================
 // GET ALL REPORTS
@@ -70,7 +73,6 @@ router.get(
 // GET SINGLE REPORT
 // GET /api/reports/:id
 // ============================================================
-
 
 router.get(
   "/:id",
