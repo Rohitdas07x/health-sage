@@ -7,21 +7,20 @@ const {
   getReports,
   getReportById,
   getMetricTrends,
-  getReportRecommendations,
+  findHospitals,
 } = require("../controllers/reportController");
 
 const protect = require("../middleware/auth.middleware");
 
 const upload = require("../middleware/upload.middleware");
 
-const {
-  validateUpload,
-} = require("../middleware/validate.middleware");
+const { validateUpload } = require("../middleware/validate.middleware");
 
 
-// ─────────────────────────────────────────────
-// Upload Report
-// ─────────────────────────────────────────────
+// ============================================================
+// UPLOAD REPORT
+// POST /api/reports/upload
+// ============================================================
 
 router.post(
   "/upload",
@@ -32,9 +31,10 @@ router.post(
 );
 
 
-// ─────────────────────────────────────────────
-// Metric Trends
-// ─────────────────────────────────────────────
+// ============================================================
+// GET METRIC TRENDS
+// GET /api/reports/metrics/trends
+// ============================================================
 
 router.get(
   "/metrics/trends",
@@ -43,9 +43,21 @@ router.get(
 );
 
 
-// ─────────────────────────────────────────────
-// Get All Reports
-// ─────────────────────────────────────────────
+// ============================================================
+// FIND NEARBY HOSPITALS / CLINICS
+// GET /api/reports/nearby?latitude=22.57&longitude=88.36
+// ============================================================
+
+router.post(
+  "/hospitals",
+  protect,
+  findHospitals
+);
+
+// ============================================================
+// GET ALL REPORTS
+// GET /api/reports
+// ============================================================
 
 router.get(
   "/",
@@ -54,21 +66,11 @@ router.get(
 );
 
 
-// ─────────────────────────────────────────────
-// Doctor / Hospital Recommendations
-// IMPORTANT: This must come BEFORE /:id
-// ─────────────────────────────────────────────
+// ============================================================
+// GET SINGLE REPORT
+// GET /api/reports/:id
+// ============================================================
 
-router.get(
-  "/:id/recommendations",
-  protect,
-  getReportRecommendations
-);
-
-
-// ─────────────────────────────────────────────
-// Get Single Report
-// ─────────────────────────────────────────────
 
 router.get(
   "/:id",

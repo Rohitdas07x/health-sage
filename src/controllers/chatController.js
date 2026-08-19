@@ -4,87 +4,262 @@ const Metric = require("../models/Metric");
 const { getSpecialistForMetric } = require("../utils/specialistMap");
 const { findNearbyHospitals } = require("../services/placesService");
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
 const chatAboutReport = async (req, res) => {
   try {
-    const { reportId, message, history } = req.body;
+    const {
+      reportId,
+      message,
+      history,
+      latitude,
+      longitude,
+    } = req.body;
 
     if (!reportId || !message) {
-      return res.status(400).json({ message: "reportId and message are required" });
+      return res.status(400).json({
+        message: "reportId and message are required",
+      });
     }
 
-    const report = await Report.findOne({ _id: reportId, user: req.userId });
+    // ─────────────────────────────────────
+    // Find report
+    // ─────────────────────────────────────
+
+    const report = await Report.findOne({
+      _id: reportId,
+      user: req.userId,
+    });
+
     if (!report) {
-      return res.status(404).json({ message: "Report not found" });
+      return res.status(404).json({
+        message: "Report not found",
+      });
     }
 
-const metrics = await Metric.find({ report: reportId });
-    // find abnormal metrics and their specialists
-const abnormalMetrics = metrics.filter((m) => m.status !== "normal");
-const specialists = [...new Set(abnormalMetrics.map((m) => getSpecialistForMetric(m.name)))];
+    // ─────────────────────────────────────
+    // Get metrics
+    // ─────────────────────────────────────
 
-let hospitalInfo = "";
-const { latitude, longitude } = req.body;
+    const metrics = await Metric.find({
+      report: reportId,
+    });
 
-if (specialists.length > 0 && latitude && longitude) {
-  try {
-    const { places, searchRadiusKm } = await findNearbyHospitals(latitude, longitude);
-    if (places.length > 0) {
-      const placesList = places
-        .slice(0, 5)
-        .map((p) => `- ${p.name} (${p.address})`)
-        .join("\n");
-      hospitalInfo = `\n\nNearby hospitals/clinics (within ${searchRadiusKm}km):\n${placesList}`;
-    } else {
-      hospitalInfo = "\n\nNo nearby hospitals found in the search area — consider checking the nearest town or city.";
-    }
-  } catch (err) {
-  console.error("Overpass API error:", err.message);
-  hospitalInfo = "";
-}
-}
+    // ─────────────────────────────────────
+    // Find abnormal metrics
+    // ─────────────────────────────────────
 
-const specialistNote = specialists.length > 0
-  ? `\n\nBased on the abnormal results, consulting a ${specialists.join(" or ")} may be helpful.`
-  : "";
+    const abnormalMetrics = metrics.filter(
+      (m) => m.status !== "normal"
+    );
 
-    const metricsText = metrics
-      .map((m) => `${m.name}: ${m.value} ${m.unit || ""} (Normal range: ${m.refRangeLow}-${m.refRangeHigh}, Status: ${m.status})`)
-      .join("\n");
+    // ─────────────────────────────────────
+    // Find specialists
+    // ─────────────────────────────────────
 
-    const systemPrompt = `You are a helpful, warm health assistant for a patient reviewing their lab report. You have access to their report data below. Answer their questions clearly in plain language. Never give a confident diagnosis. Always suggest consulting a doctor for anything concerning. Keep answers concise (2-5 sentences) unless more detail is clearly needed.
-
-Report Data:
-${metricsText}
-
-Clinical Summary: ${report.clinicalSummary}
-Patient Summary: ${report.patientSummary}${specialistNote}${hospitalInfo}
-
-If the user asks about seeing a doctor or specialist, or where to get checked, use the specialist and hospital information above if available. Never recommend a specific named doctor — only mention hospital/clinic names as options and always add that this is a suggestion, not a directive, and the person should verify before visiting.`;
-
-    const conversationHistory = Array.isArray(history) ? history : [];
-
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...conversationHistory,
-      { role: "user", content: message },
+    const specialists = [
+      ...new Set(
+        abnormalMetrics.map((m) =>
+          getSpecialistForMetric(m.name)
+        )
+      ),
     ];
 
-    const completion = await groq.chat.completions.create({
-  model: "openai/gpt-oss-120b",
-  messages,
-  temperature: 0.4,
-  max_tokens: 4096,
-  reasoning_effort: "low",
-});
+    // ─────────────────────────────────────
+    // Hospital search
+    // ─────────────────────────────────────
 
-    const reply = completion.choices[0].message.content.trim();
+    let hospitals = [];
+    let searchRadiusKm = null;
 
-    res.status(200).json({ reply });
+    if (
+      specialists.length > 0 &&
+      latitude !== undefined &&
+      longitude !== undefined &&
+      latitude !== null &&
+      longitude !== null
+    ) {
+      try {
+        const result = await findNearbyHospitals(
+          Number(latitude),
+          Number(longitude)
+        );
+
+        hospitals = result.places || [];
+        searchRadiusKm = result.searchRadiusKm;
+      } catch (error) {
+        console.error(
+          "Hospital search error:",
+          error.message
+        );
+      }
+    }
+
+    // ─────────────────────────────────────
+    // Hospital text for AI
+    // ─────────────────────────────────────
+
+    let hospitalInfo = "";
+
+    if (hospitals.length > 0) {
+      const hospitalList = hospitals
+        .slice(0, 5)
+        .map(
+          (hospital) =>
+            `- ${hospital.name} | ${
+              hospital.address || "Address not available"
+            } | ${
+              hospital.distanceKm ?? "?"
+            } km away`
+        )
+        .join("\n");
+
+      hospitalInfo = `
+Nearby hospitals/clinics within ${searchRadiusKm} km:
+
+${hospitalList}
+`;
+    }
+
+    // ─────────────────────────────────────
+    // Specialist note
+    // ─────────────────────────────────────
+
+    const specialistNote =
+      specialists.length > 0
+        ? `
+Based on the abnormal results, consulting ${
+            specialists.join(" or ")
+          } may be helpful.
+`
+        : "";
+
+    // ─────────────────────────────────────
+    // Metrics text
+    // ─────────────────────────────────────
+
+    const metricsText = metrics
+      .map(
+        (m) =>
+          `${m.name}: ${m.value} ${
+            m.unit || ""
+          } (Normal range: ${
+            m.refRangeLow
+          }-${m.refRangeHigh}, Status: ${
+            m.status
+          })`
+      )
+      .join("\n");
+
+    // ─────────────────────────────────────
+    // System Prompt
+    // ─────────────────────────────────────
+
+    const systemPrompt = `
+You are a helpful, warm health assistant for a patient reviewing their laboratory report.
+
+Answer questions clearly in simple language.
+
+IMPORTANT SAFETY RULES:
+- Never give a confident diagnosis.
+- Never claim that the patient definitely has a disease.
+- Explain abnormal values carefully.
+- Encourage consultation with a qualified doctor when appropriate.
+- Do not prescribe medicines.
+- Do not tell the patient to start or stop medication.
+- Keep answers concise, normally 2-5 sentences unless more detail is necessary.
+
+REPORT DATA:
+
+${metricsText}
+
+Clinical Summary:
+${report.clinicalSummary}
+
+Patient Summary:
+${report.patientSummary}
+
+${specialistNote}
+
+${hospitalInfo}
+
+SPECIALIST RULE:
+If the user asks which doctor they should consult, mention the relevant specialist based on the abnormal metrics.
+
+HOSPITAL RULE:
+If the user asks about hospitals or where they can get checked, mention the nearby hospital/clinic names provided above.
+
+Never recommend a specific doctor by name.
+
+Hospital suggestions are only options. Tell the patient to verify availability, department, and appointment details before visiting.
+
+Do not invent hospital names or addresses.
+`;
+
+    // ─────────────────────────────────────
+    // Conversation history
+    // ─────────────────────────────────────
+
+    const conversationHistory = Array.isArray(history)
+      ? history
+      : [];
+
+    const messages = [
+      {
+        role: "system",
+        content: systemPrompt,
+      },
+      ...conversationHistory,
+      {
+        role: "user",
+        content: message,
+      },
+    ];
+
+    // ─────────────────────────────────────
+    // Groq
+    // ─────────────────────────────────────
+
+    const completion =
+      await groq.chat.completions.create({
+        model: "openai/gpt-oss-120b",
+        messages,
+        temperature: 0.4,
+        max_tokens: 4096,
+        reasoning_effort: "low",
+      });
+
+    const reply =
+      completion.choices?.[0]?.message?.content?.trim() ||
+      "Sorry, I could not generate a response.";
+
+    // ─────────────────────────────────────
+    // Final response
+    // ─────────────────────────────────────
+
+    res.status(200).json({
+      reply,
+      specialists,
+      abnormalMetrics: abnormalMetrics.map((m) => ({
+        name: m.name,
+        value: m.value,
+        unit: m.unit,
+        status: m.status,
+      })),
+      hospitals,
+      searchRadiusKm,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Chat controller error:", error);
+
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
-module.exports = { chatAboutReport };
+module.exports = {
+  chatAboutReport,
+};

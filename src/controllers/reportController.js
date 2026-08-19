@@ -4,18 +4,12 @@ const pdfParse = require("pdf-parse");
 const Report = require("../models/Report");
 const hashText = require("../utils/hash");
 
-const {
-  getSpecialistForMetric,
-} = require("../utils/specialistMap");
+const { getSpecialistForMetric } = require("../utils/specialistMap");
+const { findNearbyHospitals } = require("../services/placesService");
 
-const {
-  findNearbyHospitals,
-} = require("../services/placesService");
-
-
-// ─────────────────────────────────────────────
-// Upload Report
-// ─────────────────────────────────────────────
+// ============================================================
+// UPLOAD REPORT
+// ============================================================
 
 const uploadReport = async (req, res) => {
   try {
@@ -28,21 +22,19 @@ const uploadReport = async (req, res) => {
     const pdfData = await pdfParse(req.file.buffer);
     const extractedText = pdfData.text;
 
-    if (
-      !extractedText ||
-      extractedText.trim().length === 0
-    ) {
+    if (!extractedText || extractedText.trim().length === 0) {
       return res.status(400).json({
         message: "Could not extract text from PDF",
       });
     }
 
-    const reportType =
-      req.body.reportType || "blood";
-
+    const reportType = req.body.reportType || "blood";
     const textHash = hashText(extractedText);
 
-    // Check if this exact report was already processed
+    // ----------------------------------------------------------
+    // CHECK CACHE
+    // ----------------------------------------------------------
+
     const existingReport = await Report.findOne({
       user: req.userId,
       textHash,
@@ -64,64 +56,72 @@ const uploadReport = async (req, res) => {
       });
     }
 
-    // AI processing
-    const aiResult =
-      await extractMetricsAndSummaries(
-        extractedText,
-        reportType
-      );
+    // ----------------------------------------------------------
+    // GROQ AI EXTRACTION
+    // ----------------------------------------------------------
+
+    const aiResult = await extractMetricsAndSummaries(
+      extractedText,
+      reportType
+    );
 
     console.log(
       "AI RESULT:",
       JSON.stringify(aiResult, null, 2)
     );
 
-    const abnormalCount =
-      aiResult.metrics.filter(
-        (m) => m.status !== "normal"
-      ).length;
+    const abnormalCount = aiResult.metrics.filter(
+      (m) => m.status !== "normal"
+    ).length;
 
-    // Save report
+    // ----------------------------------------------------------
+    // CREATE REPORT
+    // ----------------------------------------------------------
+
     const report = await Report.create({
       user: req.userId,
       fileName: req.file.originalname,
       reportType,
       textHash,
-      patientSummary:
-        aiResult.patientSummary,
-      clinicalSummary:
-        aiResult.clinicalSummary,
+      patientSummary: aiResult.patientSummary,
+      clinicalSummary: aiResult.clinicalSummary,
       abnormalCount,
     });
 
-    // Save metrics
-    const metricDocs = aiResult.metrics.map(
-      (m) => ({
-        report: report._id,
-        user: req.userId,
-        name: m.name,
-        value: m.value,
-        unit: m.unit,
-        refRangeLow: m.refRangeLow,
-        refRangeHigh: m.refRangeHigh,
-        status: m.status,
-        date: report.uploadDate,
-      })
-    );
+    // ----------------------------------------------------------
+    // CREATE METRICS
+    // ----------------------------------------------------------
+
+    const metricDocs = aiResult.metrics.map((m) => ({
+      report: report._id,
+      user: req.userId,
+      name: m.name,
+      value: m.value,
+      unit: m.unit,
+      refRangeLow: m.refRangeLow,
+      refRangeHigh: m.refRangeHigh,
+      status: m.status,
+      date: report.uploadDate,
+    }));
 
     await Metric.insertMany(metricDocs);
+
+    // ----------------------------------------------------------
+    // RESPONSE
+    // ----------------------------------------------------------
 
     res.status(201).json({
       reportId: report._id,
       fileName: report.fileName,
       abnormalCount,
-      patientSummary:
-        report.patientSummary,
-      clinicalSummary:
-        report.clinicalSummary,
+      patientSummary: report.patientSummary,
+      clinicalSummary: report.clinicalSummary,
       metrics: aiResult.metrics,
     });
+
   } catch (error) {
+    console.error("Upload report error:", error);
+
     res.status(500).json({
       message: error.message,
     });
@@ -129,9 +129,9 @@ const uploadReport = async (req, res) => {
 };
 
 
-// ─────────────────────────────────────────────
-// Get All Reports
-// ─────────────────────────────────────────────
+// ============================================================
+// GET ALL REPORTS
+// ============================================================
 
 const getReports = async (req, res) => {
   try {
@@ -142,7 +142,10 @@ const getReports = async (req, res) => {
     });
 
     res.status(200).json(reports);
+
   } catch (error) {
+    console.error("Get reports error:", error);
+
     res.status(500).json({
       message: error.message,
     });
@@ -150,9 +153,9 @@ const getReports = async (req, res) => {
 };
 
 
-// ─────────────────────────────────────────────
-// Get Single Report
-// ─────────────────────────────────────────────
+// ============================================================
+// GET SINGLE REPORT
+// ============================================================
 
 const getReportById = async (req, res) => {
   try {
@@ -171,11 +174,37 @@ const getReportById = async (req, res) => {
       report: report._id,
     });
 
+    // ----------------------------------------------------------
+    // FIND ABNORMAL METRICS
+    // ----------------------------------------------------------
+
+    const abnormalMetrics = metrics.filter(
+      (m) => m.status !== "normal"
+    );
+
+    const specialists = [
+      ...new Set(
+        abnormalMetrics.map((m) =>
+          getSpecialistForMetric(m.name)
+        )
+      ),
+    ];
+
     res.status(200).json({
       report,
       metrics,
+      specialists,
+      abnormalMetrics: abnormalMetrics.map((m) => ({
+        name: m.name,
+        value: m.value,
+        unit: m.unit,
+        status: m.status,
+      })),
     });
+
   } catch (error) {
+    console.error("Get report error:", error);
+
     res.status(500).json({
       message: error.message,
     });
@@ -183,9 +212,9 @@ const getReportById = async (req, res) => {
 };
 
 
-// ─────────────────────────────────────────────
-// Metric Trends
-// ─────────────────────────────────────────────
+// ============================================================
+// GET METRIC TRENDS
+// ============================================================
 
 const getMetricTrends = async (req, res) => {
   try {
@@ -215,7 +244,10 @@ const getMetricTrends = async (req, res) => {
     res.json({
       trends: grouped,
     });
+
   } catch (err) {
+    console.error("Trend error:", err);
+
     res.status(500).json({
       message: "Failed to fetch trends",
     });
@@ -223,158 +255,57 @@ const getMetricTrends = async (req, res) => {
 };
 
 
-// ─────────────────────────────────────────────
-// Doctor / Hospital Recommendations
-// ─────────────────────────────────────────────
+// ============================================================
+// FIND NEARBY HOSPITALS / CLINICS
+// ============================================================
+//
+// GET /api/reports/nearby?latitude=22.57&longitude=88.36
+//
+// Frontend থেকে latitude + longitude আসবে
+// তারপর Overpass + Geoapify + Wikidata search হবে
+// ============================================================
 
-const getReportRecommendations = async (
-  req,
-  res
-) => {
+const findHospitals = async (req, res) => {
   try {
-    const { latitude, longitude } = req.query;
-
-    // Validate location
-    if (!latitude || !longitude) {
-      return res.status(400).json({
-        message:
-          "latitude and longitude are required",
-      });
-    }
-
-    const lat = Number(latitude);
-    const lon = Number(longitude);
+    const { latitude, longitude } = req.body;
 
     if (
-      Number.isNaN(lat) ||
-      Number.isNaN(lon) ||
-      lat < -90 ||
-      lat > 90 ||
-      lon < -180 ||
-      lon > 180
+      typeof latitude !== "number" ||
+      typeof longitude !== "number"
     ) {
       return res.status(400).json({
-        message:
-          "Invalid latitude or longitude",
+        message: "Valid latitude and longitude are required",
       });
     }
 
-    // Find report belonging to logged-in user
-    const report = await Report.findOne({
-      _id: req.params.id,
-      user: req.userId,
-    });
-
-    if (!report) {
-      return res.status(404).json({
-        message: "Report not found",
-      });
-    }
-
-    // Get report metrics
-    const metrics = await Metric.find({
-      report: report._id,
-    });
-
-    // Only abnormal metrics
-    const abnormalMetrics =
-      metrics.filter(
-        (metric) =>
-          metric.status !== "normal"
-      );
-
-    // Find specialists
-    const specialists = [
-      ...new Set(
-        abnormalMetrics.map((metric) =>
-          getSpecialistForMetric(
-            metric.name
-          )
-        )
-      ),
-    ];
-
-    // If everything is normal,
-    // no hospital search is required.
-    if (specialists.length === 0) {
-      return res.status(200).json({
-        specialists: [],
-        abnormalMetrics: [],
-        hospitals: [],
-        searchRadiusKm: 0,
-      });
-    }
-
-    // Find nearby hospitals
-    let hospitals = [];
-    let searchRadiusKm = 0;
-
-    try {
-      const result =
-        await findNearbyHospitals(
-          lat,
-          lon
-        );
-
-      hospitals = result.places.map(
-        (place) => ({
-          name: place.name,
-          address: place.address,
-          lat: place.lat,
-          lon: place.lon,
-          source: place.source,
-        })
-      );
-
-      searchRadiusKm =
-        result.searchRadiusKm;
-    } catch (err) {
-      console.error(
-        "Hospital search error:",
-        err.message
-      );
-    }
-
-    // Response
-    res.status(200).json({
-      specialists,
-
-      abnormalMetrics:
-        abnormalMetrics.map(
-          (metric) => ({
-            name: metric.name,
-            value: metric.value,
-            unit: metric.unit,
-            status: metric.status,
-          })
-        ),
-
-      hospitals,
-
-      searchRadiusKm,
-    });
-  } catch (error) {
-    console.error(
-      "Recommendation error:",
-      error.message
+    const result = await findNearbyHospitals(
+      latitude,
+      longitude
     );
 
-    res.status(500).json({
-      message:
-        "Failed to fetch recommendations",
+    return res.status(200).json({
+      hospitals: result.places,
+      searchRadiusKm: result.searchRadiusKm,
+    });
+
+  } catch (error) {
+    console.error("Find hospitals error:", error);
+
+    return res.status(500).json({
+      message: "Could not find nearby hospitals",
     });
   }
 };
 
 
-// ─────────────────────────────────────────────
-// Exports
-// ─────────────────────────────────────────────
+// ============================================================
+// EXPORTS
+// ============================================================
 
 module.exports = {
   uploadReport,
   getReports,
   getReportById,
   getMetricTrends,
-  getReportRecommendations,
+  findHospitals,
 };
