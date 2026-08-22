@@ -271,9 +271,9 @@ const compareReports = async (req, res) => {
   try {
     const { report1, report2 } = req.query;
 
-    // ----------------------------------------------------------
+    // ==========================================================
     // VALIDATE REPORT IDS
-    // ----------------------------------------------------------
+    // ==========================================================
 
     if (!report1 || !report2) {
       return res.status(400).json({
@@ -287,9 +287,9 @@ const compareReports = async (req, res) => {
       });
     }
 
-    // ----------------------------------------------------------
+    // ==========================================================
     // FIND BOTH REPORTS
-    // ----------------------------------------------------------
+    // ==========================================================
 
     const reports = await Report.find({
       _id: { $in: [report1, report2] },
@@ -302,19 +302,17 @@ const compareReports = async (req, res) => {
       });
     }
 
-    const firstReport =
-      reports.find(
-        (r) => r._id.toString() === report1
-      );
+    const firstReport = reports.find(
+      (r) => r._id.toString() === report1
+    );
 
-    const secondReport =
-      reports.find(
-        (r) => r._id.toString() === report2
-      );
+    const secondReport = reports.find(
+      (r) => r._id.toString() === report2
+    );
 
-    // ----------------------------------------------------------
-    // FIND METRICS FOR BOTH REPORTS
-    // ----------------------------------------------------------
+    // ==========================================================
+    // FIND METRICS
+    // ==========================================================
 
     const [firstMetrics, secondMetrics] = await Promise.all([
       Metric.find({
@@ -328,59 +326,149 @@ const compareReports = async (req, res) => {
       }).lean(),
     ]);
 
-    // ----------------------------------------------------------
-    // CREATE MAPS BY METRIC NAME
-    // ----------------------------------------------------------
+    // ==========================================================
+    // NORMALIZE METRIC NAME
+    // ==========================================================
+
+    const normalizeMetricName = (name) => {
+      if (!name) return "";
+
+      let normalized = name
+        .toLowerCase()
+        .trim()
+        .replace(/[()]/g, "")
+        .replace(/[-_/]/g, " ")
+        .replace(/\s+/g, " ");
+
+      // --------------------------------------------------------
+      // COMMON MEDICAL NAME VARIATIONS
+      // --------------------------------------------------------
+
+      if (
+        normalized.includes("hemoglobin") ||
+        normalized === "hb"
+      ) {
+        return "hemoglobin";
+      }
+
+      if (
+        normalized.includes("glucose") ||
+        normalized === "blood sugar" ||
+        normalized.includes("blood glucose")
+      ) {
+        return "glucose";
+      }
+
+      if (
+        normalized.includes("ldl")
+      ) {
+        return "ldl";
+      }
+
+      if (
+        normalized.includes("hdl")
+      ) {
+        return "hdl";
+      }
+
+      if (
+        normalized.includes("triglyceride")
+      ) {
+        return "triglycerides";
+      }
+
+      if (
+        normalized.includes("total cholesterol")
+      ) {
+        return "total cholesterol";
+      }
+
+      if (
+        normalized === "wbc" ||
+        normalized.includes("wbc count") ||
+        normalized.includes("white blood cell")
+      ) {
+        return "wbc";
+      }
+
+      if (
+        normalized === "platelets" ||
+        normalized.includes("platelet count") ||
+        normalized.includes("platelet")
+      ) {
+        return "platelets";
+      }
+
+      // --------------------------------------------------------
+      // GENERIC NORMALIZATION
+      // --------------------------------------------------------
+
+      return normalized
+        .replace(/\bfasting\b/g, "")
+        .replace(/\bcount\b/g, "")
+        .replace(/\bcholesterol\b/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    };
+
+    // ==========================================================
+    // CREATE NORMALIZED MAPS
+    // ==========================================================
 
     const firstMetricMap = new Map();
 
     firstMetrics.forEach((metric) => {
-      firstMetricMap.set(
-        metric.name.toLowerCase().trim(),
-        metric
-      );
+      const key = normalizeMetricName(metric.name);
+
+      if (key) {
+        firstMetricMap.set(key, metric);
+      }
     });
 
     const secondMetricMap = new Map();
 
     secondMetrics.forEach((metric) => {
-      secondMetricMap.set(
-        metric.name.toLowerCase().trim(),
-        metric
-      );
+      const key = normalizeMetricName(metric.name);
+
+      if (key) {
+        secondMetricMap.set(key, metric);
+      }
     });
 
-    // ----------------------------------------------------------
-    // FIND COMMON METRICS
-    // ----------------------------------------------------------
+    // ==========================================================
+    // FIND ALL METRICS
+    // ==========================================================
 
-    const commonMetricNames = [
+    const allMetricNames = [
       ...new Set([
         ...firstMetricMap.keys(),
         ...secondMetricMap.keys(),
       ]),
     ];
 
-    // ----------------------------------------------------------
-    // COMPARE METRICS
-    // ----------------------------------------------------------
+    // ==========================================================
+    // COMPARE
+    // ==========================================================
 
     const comparison = [];
 
-    commonMetricNames.forEach((metricName) => {
-      const oldMetric =
-        firstMetricMap.get(metricName);
+    allMetricNames.forEach((metricName) => {
+      const oldMetric = firstMetricMap.get(metricName);
+      const newMetric = secondMetricMap.get(metricName);
 
-      const newMetric =
-        secondMetricMap.get(metricName);
+      // ========================================================
+      // ONLY IN OLD REPORT
+      // ========================================================
 
-      // If metric exists only in first report
       if (!newMetric) {
         comparison.push({
           name: oldMetric.name,
           unit: oldMetric.unit,
 
-          previousValue: oldMetric.value,
+          previousValue: Number.isFinite(Number(oldMetric.value))
+            ? Number(oldMetric.value)
+            : oldMetric.value,
+
           latestValue: null,
 
           previousStatus: oldMetric.status,
@@ -389,6 +477,7 @@ const compareReports = async (req, res) => {
           change: null,
           changeType: "removed",
           direction: "—",
+          healthImpact: "stable",
 
           refRangeLow: oldMetric.refRangeLow,
           refRangeHigh: oldMetric.refRangeHigh,
@@ -397,14 +486,20 @@ const compareReports = async (req, res) => {
         return;
       }
 
-      // If metric exists only in second report
+      // ========================================================
+      // ONLY IN NEW REPORT
+      // ========================================================
+
       if (!oldMetric) {
         comparison.push({
           name: newMetric.name,
           unit: newMetric.unit,
 
           previousValue: null,
-          latestValue: newMetric.value,
+
+          latestValue: Number.isFinite(Number(newMetric.value))
+            ? Number(newMetric.value)
+            : newMetric.value,
 
           previousStatus: null,
           latestStatus: newMetric.status,
@@ -412,6 +507,7 @@ const compareReports = async (req, res) => {
           change: null,
           changeType: "new",
           direction: "new",
+          healthImpact: "stable",
 
           refRangeLow: newMetric.refRangeLow,
           refRangeHigh: newMetric.refRangeHigh,
@@ -420,9 +516,9 @@ const compareReports = async (req, res) => {
         return;
       }
 
-      // --------------------------------------------------------
-      // NUMERIC CHANGE
-      // --------------------------------------------------------
+      // ========================================================
+      // NUMERIC VALUES
+      // ========================================================
 
       const previousValue = Number(oldMetric.value);
       const latestValue = Number(newMetric.value);
@@ -433,13 +529,12 @@ const compareReports = async (req, res) => {
         Number.isFinite(previousValue) &&
         Number.isFinite(latestValue)
       ) {
-        change =
-          latestValue - previousValue;
+        change = latestValue - previousValue;
       }
 
-      // --------------------------------------------------------
-      // DETERMINE DIRECTION
-      // --------------------------------------------------------
+      // ========================================================
+      // DIRECTION
+      // ========================================================
 
       let direction = "stable";
       let changeType = "stable";
@@ -454,9 +549,9 @@ const compareReports = async (req, res) => {
         }
       }
 
-      // --------------------------------------------------------
-      // DETERMINE HEALTH IMPACT
-      // --------------------------------------------------------
+      // ========================================================
+      // HEALTH IMPACT
+      // ========================================================
 
       let healthImpact = "stable";
 
@@ -492,9 +587,9 @@ const compareReports = async (req, res) => {
         healthImpact = "worsened";
       }
 
-      // --------------------------------------------------------
+      // ========================================================
       // ADD COMPARISON
-      // --------------------------------------------------------
+      // ========================================================
 
       comparison.push({
         name: newMetric.name,
@@ -507,7 +602,6 @@ const compareReports = async (req, res) => {
         latestStatus: newMetric.status,
 
         change,
-
         changeType,
         direction,
         healthImpact,
@@ -522,48 +616,50 @@ const compareReports = async (req, res) => {
       });
     });
 
-    // ----------------------------------------------------------
+    console.log("REPORT 1 METRICS:", firstMetrics);
+    console.log("REPORT 2 METRICS:", secondMetrics);
+    console.log("COMPARISON:", comparison);
+
+    // ==========================================================
     // SORT
-    // ----------------------------------------------------------
+    // ==========================================================
 
     comparison.sort((a, b) =>
       a.name.localeCompare(b.name)
     );
 
-    // ----------------------------------------------------------
+    // ==========================================================
     // SUMMARY COUNTS
-    // ----------------------------------------------------------
+    // ==========================================================
 
-    const improvedCount =
-      comparison.filter(
-        (m) => m.healthImpact === "improved"
-      ).length;
+    const improvedCount = comparison.filter(
+      (m) => m.healthImpact === "improved"
+    ).length;
 
-    const worsenedCount =
-      comparison.filter(
-        (m) => m.healthImpact === "worsened"
-      ).length;
+    const worsenedCount = comparison.filter(
+      (m) => m.healthImpact === "worsened"
+    ).length;
 
-    const stableCount =
-      comparison.filter(
-        (m) => m.healthImpact === "stable"
-      ).length;
+    const stableCount = comparison.filter(
+      (m) =>
+        m.healthImpact === "stable" &&
+        m.changeType === "stable"
+    ).length;
 
-    const newCount =
-      comparison.filter(
-        (m) => m.changeType === "new"
-      ).length;
+    const newCount = comparison.filter(
+      (m) => m.changeType === "new"
+    ).length;
 
-    const removedCount =
-      comparison.filter(
-        (m) => m.changeType === "removed"
-      ).length;
+    const removedCount = comparison.filter(
+      (m) => m.changeType === "removed"
+    ).length;
 
-    // ----------------------------------------------------------
-    // OVERALL SUMMARY
-    // ----------------------------------------------------------
+    // ==========================================================
+    // OVERALL STATUS
+    // ==========================================================
 
     let overallStatus = "stable";
+
     let overallMessage =
       "Your health metrics are mostly stable between these reports.";
 
@@ -579,9 +675,9 @@ const compareReports = async (req, res) => {
         `Some health metrics need attention. ${worsenedCount} metric(s) worsened compared with the previous report.`;
     }
 
-    // ----------------------------------------------------------
+    // ==========================================================
     // RESPONSE
-    // ----------------------------------------------------------
+    // ==========================================================
 
     res.status(200).json({
       reports: {
@@ -617,10 +713,7 @@ const compareReports = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(
-      "Compare reports error:",
-      error
-    );
+    console.error("Compare reports error:", error);
 
     res.status(500).json({
       message: error.message,

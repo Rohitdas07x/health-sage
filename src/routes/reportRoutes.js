@@ -1,3 +1,4 @@
+
 const express = require("express");
 
 const router = express.Router();
@@ -18,6 +19,10 @@ const {
   validateUpload,
 } = require("../middleware/validate.middleware");
 
+const {
+  findNearbyHospitals,
+} = require("../services/hospitalService");
+
 
 // ============================================================
 // UPLOAD REPORT
@@ -34,8 +39,54 @@ router.post(
 
 
 // ============================================================
+// FIND NEARBY HOSPITALS
+// POST /api/reports/hospitals
+// ============================================================
+
+router.post(
+  "/hospitals",
+  protect,
+  async (req, res) => {
+    try {
+      const { latitude, longitude } = req.body;
+
+      if (
+        latitude === undefined ||
+        longitude === undefined
+      ) {
+        return res.status(400).json({
+          message: "Latitude and longitude are required.",
+        });
+      }
+
+      const result = await findNearbyHospitals(
+        Number(latitude),
+        Number(longitude)
+      );
+
+      return res.status(200).json({
+        hospitals: result.places || [],
+        searchRadiusKm: result.searchRadiusKm,
+      });
+
+    } catch (error) {
+      console.error(
+        "Nearby hospital error:",
+        error
+      );
+
+      return res.status(500).json({
+        message: "Could not find nearby hospitals.",
+      });
+    }
+  }
+);
+
+
+// ============================================================
 // GET METRIC TRENDS
 // GET /api/reports/metrics/trends
+// IMPORTANT: BEFORE "/:id"
 // ============================================================
 
 router.get(
@@ -48,6 +99,7 @@ router.get(
 // ============================================================
 // COMPARE TWO REPORTS
 // GET /api/reports/compare?report1=ID1&report2=ID2
+// IMPORTANT: BEFORE "/:id"
 // ============================================================
 
 router.get(
@@ -72,6 +124,7 @@ router.get(
 // ============================================================
 // GET SINGLE REPORT
 // GET /api/reports/:id
+// MUST ALWAYS BE LAST
 // ============================================================
 
 router.get(
@@ -82,3 +135,4 @@ router.get(
 
 
 module.exports = router;
+
