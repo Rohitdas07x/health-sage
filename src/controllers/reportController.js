@@ -2,10 +2,16 @@ const { extractMetricsAndSummaries } = require("../services/groqService");
 const Metric = require("../models/Metric");
 const pdfParse = require("pdf-parse");
 const Report = require("../models/Report");
+const User = require("../models/User");
 const hashText = require("../utils/hash");
+const crypto = require("crypto");
 
 const { getSpecialistForMetric } = require("../utils/specialistMap");
 const { findNearbyHospitals } = require("../services/placesService");
+
+const {
+  sendReportReadyEmail,
+} = require("../services/emailService");
 
 
 // ============================================================
@@ -106,6 +112,31 @@ const uploadReport = async (req, res) => {
     }));
 
     await Metric.insertMany(metricDocs);
+
+    // ----------------------------------------------------------
+    // SEND EMAIL NOTIFICATION
+    // ----------------------------------------------------------
+
+    try {
+      const user = await User.findById(req.userId);
+
+      if (user?.email) {
+        await sendReportReadyEmail(
+          user.email,
+          report.fileName
+        );
+      } else {
+        console.log(
+          "Email notification skipped: User email not found"
+        );
+      }
+    } catch (emailError) {
+      // Email failure will NOT affect report upload
+      console.error(
+        "Email notification error:",
+        emailError.message
+      );
+    }
 
     // ----------------------------------------------------------
     // RESPONSE
@@ -259,21 +290,10 @@ const getMetricTrends = async (req, res) => {
 // ============================================================
 // COMPARE TWO REPORTS
 // ============================================================
-// This compares two reports belonging to the logged-in user.
-//
-// Expected request:
-// GET /api/reports/compare?report1=REPORT_ID&report2=REPORT_ID
-//
-// The controller compares common metrics between the two reports.
-// ============================================================
 
 const compareReports = async (req, res) => {
   try {
     const { report1, report2 } = req.query;
-
-    // ==========================================================
-    // VALIDATE REPORT IDS
-    // ==========================================================
 
     if (!report1 || !report2) {
       return res.status(400).json({
@@ -286,10 +306,6 @@ const compareReports = async (req, res) => {
         message: "Please select two different reports",
       });
     }
-
-    // ==========================================================
-    // FIND BOTH REPORTS
-    // ==========================================================
 
     const reports = await Report.find({
       _id: { $in: [report1, report2] },
@@ -310,10 +326,6 @@ const compareReports = async (req, res) => {
       (r) => r._id.toString() === report2
     );
 
-    // ==========================================================
-    // FIND METRICS
-    // ==========================================================
-
     const [firstMetrics, secondMetrics] = await Promise.all([
       Metric.find({
         report: firstReport._id,
@@ -326,10 +338,6 @@ const compareReports = async (req, res) => {
       }).lean(),
     ]);
 
-    // ==========================================================
-    // NORMALIZE METRIC NAME
-    // ==========================================================
-
     const normalizeMetricName = (name) => {
       if (!name) return "";
 
@@ -339,10 +347,6 @@ const compareReports = async (req, res) => {
         .replace(/[()]/g, "")
         .replace(/[-_/]/g, " ")
         .replace(/\s+/g, " ");
-
-      // --------------------------------------------------------
-      // COMMON MEDICAL NAME VARIATIONS
-      // --------------------------------------------------------
 
       if (
         normalized.includes("hemoglobin") ||
@@ -359,27 +363,19 @@ const compareReports = async (req, res) => {
         return "glucose";
       }
 
-      if (
-        normalized.includes("ldl")
-      ) {
+      if (normalized.includes("ldl")) {
         return "ldl";
       }
 
-      if (
-        normalized.includes("hdl")
-      ) {
+      if (normalized.includes("hdl")) {
         return "hdl";
       }
 
-      if (
-        normalized.includes("triglyceride")
-      ) {
+      if (normalized.includes("triglyceride")) {
         return "triglycerides";
       }
 
-      if (
-        normalized.includes("total cholesterol")
-      ) {
+      if (normalized.includes("total cholesterol")) {
         return "total cholesterol";
       }
 
@@ -399,10 +395,6 @@ const compareReports = async (req, res) => {
         return "platelets";
       }
 
-      // --------------------------------------------------------
-      // GENERIC NORMALIZATION
-      // --------------------------------------------------------
-
       return normalized
         .replace(/\bfasting\b/g, "")
         .replace(/\bcount\b/g, "")
@@ -410,10 +402,6 @@ const compareReports = async (req, res) => {
         .replace(/\s+/g, " ")
         .trim();
     };
-
-    // ==========================================================
-    // CREATE NORMALIZED MAPS
-    // ==========================================================
 
     const firstMetricMap = new Map();
 
@@ -435,10 +423,6 @@ const compareReports = async (req, res) => {
       }
     });
 
-    // ==========================================================
-    // FIND ALL METRICS
-    // ==========================================================
-
     const allMetricNames = [
       ...new Set([
         ...firstMetricMap.keys(),
@@ -446,39 +430,26 @@ const compareReports = async (req, res) => {
       ]),
     ];
 
-    // ==========================================================
-    // COMPARE
-    // ==========================================================
-
     const comparison = [];
 
     allMetricNames.forEach((metricName) => {
       const oldMetric = firstMetricMap.get(metricName);
       const newMetric = secondMetricMap.get(metricName);
 
-      // ========================================================
-      // ONLY IN OLD REPORT
-      // ========================================================
-
       if (!newMetric) {
         comparison.push({
           name: oldMetric.name,
           unit: oldMetric.unit,
-
           previousValue: Number.isFinite(Number(oldMetric.value))
             ? Number(oldMetric.value)
             : oldMetric.value,
-
           latestValue: null,
-
           previousStatus: oldMetric.status,
           latestStatus: null,
-
           change: null,
           changeType: "removed",
           direction: "—",
           healthImpact: "stable",
-
           refRangeLow: oldMetric.refRangeLow,
           refRangeHigh: oldMetric.refRangeHigh,
         });
@@ -486,39 +457,26 @@ const compareReports = async (req, res) => {
         return;
       }
 
-      // ========================================================
-      // ONLY IN NEW REPORT
-      // ========================================================
-
       if (!oldMetric) {
         comparison.push({
           name: newMetric.name,
           unit: newMetric.unit,
-
           previousValue: null,
-
           latestValue: Number.isFinite(Number(newMetric.value))
             ? Number(newMetric.value)
             : newMetric.value,
-
           previousStatus: null,
           latestStatus: newMetric.status,
-
           change: null,
           changeType: "new",
           direction: "new",
           healthImpact: "stable",
-
           refRangeLow: newMetric.refRangeLow,
           refRangeHigh: newMetric.refRangeHigh,
         });
 
         return;
       }
-
-      // ========================================================
-      // NUMERIC VALUES
-      // ========================================================
 
       const previousValue = Number(oldMetric.value);
       const latestValue = Number(newMetric.value);
@@ -532,10 +490,6 @@ const compareReports = async (req, res) => {
         change = latestValue - previousValue;
       }
 
-      // ========================================================
-      // DIRECTION
-      // ========================================================
-
       let direction = "stable";
       let changeType = "stable";
 
@@ -548,10 +502,6 @@ const compareReports = async (req, res) => {
           changeType = "decreased";
         }
       }
-
-      // ========================================================
-      // HEALTH IMPACT
-      // ========================================================
 
       let healthImpact = "stable";
 
@@ -587,50 +537,29 @@ const compareReports = async (req, res) => {
         healthImpact = "worsened";
       }
 
-      // ========================================================
-      // ADD COMPARISON
-      // ========================================================
-
       comparison.push({
         name: newMetric.name,
         unit: newMetric.unit,
-
         previousValue,
         latestValue,
-
         previousStatus: oldMetric.status,
         latestStatus: newMetric.status,
-
         change,
         changeType,
         direction,
         healthImpact,
-
         refRangeLow:
           newMetric.refRangeLow ??
           oldMetric.refRangeLow,
-
         refRangeHigh:
           newMetric.refRangeHigh ??
           oldMetric.refRangeHigh,
       });
     });
 
-    console.log("REPORT 1 METRICS:", firstMetrics);
-    console.log("REPORT 2 METRICS:", secondMetrics);
-    console.log("COMPARISON:", comparison);
-
-    // ==========================================================
-    // SORT
-    // ==========================================================
-
     comparison.sort((a, b) =>
       a.name.localeCompare(b.name)
     );
-
-    // ==========================================================
-    // SUMMARY COUNTS
-    // ==========================================================
 
     const improvedCount = comparison.filter(
       (m) => m.healthImpact === "improved"
@@ -654,10 +583,6 @@ const compareReports = async (req, res) => {
       (m) => m.changeType === "removed"
     ).length;
 
-    // ==========================================================
-    // OVERALL STATUS
-    // ==========================================================
-
     let overallStatus = "stable";
 
     let overallMessage =
@@ -674,10 +599,6 @@ const compareReports = async (req, res) => {
       overallMessage =
         `Some health metrics need attention. ${worsenedCount} metric(s) worsened compared with the previous report.`;
     }
-
-    // ==========================================================
-    // RESPONSE
-    // ==========================================================
 
     res.status(200).json({
       reports: {
@@ -701,7 +622,6 @@ const compareReports = async (req, res) => {
       summary: {
         overallStatus,
         overallMessage,
-
         improvedCount,
         worsenedCount,
         stableCount,
@@ -723,6 +643,156 @@ const compareReports = async (req, res) => {
 
 
 // ============================================================
+// CREATE / ENABLE SHARE LINK
+// ============================================================
+
+const createShareLink = async (req, res) => {
+  try {
+    const report = await Report.findOne({
+      _id: req.params.id,
+      user: req.userId,
+    });
+
+    if (!report) {
+      return res.status(404).json({
+        message: "Report not found",
+      });
+    }
+
+    if (!report.shareToken) {
+      report.shareToken =
+        crypto.randomBytes(32).toString("hex");
+    }
+
+    report.isShared = true;
+
+    if (!report.shareCreatedAt) {
+      report.shareCreatedAt = new Date();
+    }
+
+    await report.save();
+
+    res.status(200).json({
+      message: "Share link created successfully",
+      shareToken: report.shareToken,
+      shareUrl: `/shared/${report.shareToken}`,
+      isShared: report.isShared,
+    });
+
+  } catch (error) {
+    console.error(
+      "Create share link error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Could not create share link",
+    });
+  }
+};
+
+
+// ============================================================
+// GET PUBLIC SHARED REPORT
+// ============================================================
+
+const getSharedReport = async (req, res) => {
+  try {
+    const report = await Report.findOne({
+      shareToken: req.params.token,
+      isShared: true,
+    }).lean();
+
+    if (!report) {
+      return res.status(404).json({
+        message:
+          "This shared report does not exist or is no longer available.",
+      });
+    }
+
+    const metrics = await Metric.find({
+      report: report._id,
+    }).lean();
+
+    const abnormalMetrics = metrics.filter(
+      (metric) => metric.status !== "normal"
+    );
+
+    res.status(200).json({
+      report: {
+        fileName: report.fileName,
+        reportType: report.reportType,
+        uploadDate: report.uploadDate,
+        patientSummary: report.patientSummary,
+        clinicalSummary: report.clinicalSummary,
+        abnormalCount: report.abnormalCount,
+      },
+
+      metrics,
+
+      abnormalMetrics: abnormalMetrics.map(
+        (metric) => ({
+          name: metric.name,
+          value: metric.value,
+          unit: metric.unit,
+          status: metric.status,
+        })
+      ),
+    });
+
+  } catch (error) {
+    console.error(
+      "Get shared report error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Could not load shared report",
+    });
+  }
+};
+
+
+// ============================================================
+// REVOKE SHARE LINK
+// ============================================================
+
+const revokeShareLink = async (req, res) => {
+  try {
+    const report = await Report.findOne({
+      _id: req.params.id,
+      user: req.userId,
+    });
+
+    if (!report) {
+      return res.status(404).json({
+        message: "Report not found",
+      });
+    }
+
+    report.isShared = false;
+
+    await report.save();
+
+    res.status(200).json({
+      message:
+        "Share link has been revoked successfully.",
+    });
+
+  } catch (error) {
+    console.error(
+      "Revoke share link error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Could not revoke share link",
+    });
+  }
+};
+
+
+// ============================================================
 // EXPORT CONTROLLERS
 // ============================================================
 
@@ -732,4 +802,8 @@ module.exports = {
   getReportById,
   getMetricTrends,
   compareReports,
+  createShareLink,
+  getSharedReport,
+  revokeShareLink,
 };
+

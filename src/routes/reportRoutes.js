@@ -1,4 +1,3 @@
-
 const express = require("express");
 
 const router = express.Router();
@@ -9,6 +8,9 @@ const {
   getReportById,
   getMetricTrends,
   compareReports,
+  createShareLink,
+  getSharedReport,
+  revokeShareLink,
 } = require("../controllers/reportController");
 
 const protect = require("../middleware/auth.middleware");
@@ -23,7 +25,6 @@ const {
   findNearbyHospitals,
 } = require("../services/hospitalService");
 
-
 // ============================================================
 // UPLOAD REPORT
 // POST /api/reports/upload
@@ -36,7 +37,6 @@ router.post(
   validateUpload,
   uploadReport
 );
-
 
 // ============================================================
 // FIND NEARBY HOSPITALS
@@ -68,7 +68,6 @@ router.post(
         hospitals: result.places || [],
         searchRadiusKm: result.searchRadiusKm,
       });
-
     } catch (error) {
       console.error(
         "Nearby hospital error:",
@@ -82,6 +81,38 @@ router.post(
   }
 );
 
+// ============================================================
+// CREATE / ENABLE SHARE LINK
+// POST /api/reports/:id/share
+// ============================================================
+
+router.post(
+  "/:id/share",
+  protect,
+  createShareLink
+);
+
+// ============================================================
+// REVOKE SHARE LINK
+// DELETE /api/reports/:id/share
+// ============================================================
+
+router.delete(
+  "/:id/share",
+  protect,
+  revokeShareLink
+);
+
+// ============================================================
+// GET PUBLIC SHARED REPORT
+// GET /api/reports/shared/:token
+// IMPORTANT: Public route, no login required
+// ============================================================
+
+router.get(
+  "/shared/:token",
+  getSharedReport
+);
 
 // ============================================================
 // GET METRIC TRENDS
@@ -95,7 +126,6 @@ router.get(
   getMetricTrends
 );
 
-
 // ============================================================
 // COMPARE TWO REPORTS
 // GET /api/reports/compare?report1=ID1&report2=ID2
@@ -108,7 +138,6 @@ router.get(
   compareReports
 );
 
-
 // ============================================================
 // GET ALL REPORTS
 // GET /api/reports
@@ -119,7 +148,6 @@ router.get(
   protect,
   getReports
 );
-
 
 // ============================================================
 // GET SINGLE REPORT
@@ -132,7 +160,6 @@ router.get(
   protect,
   getReportById
 );
-
 
 module.exports = router;
 
