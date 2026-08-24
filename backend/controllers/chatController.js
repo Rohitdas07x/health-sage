@@ -2,7 +2,7 @@ const Groq = require("groq-sdk");
 const Report = require("../models/Report");
 const Metric = require("../models/Metric");
 const { getSpecialistForMetric } = require("../utils/specialistMap");
-const { findNearbyHospitals } = require("../services/placesService");
+const { findNearbyPlaces } = require("../services/placesService");
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,

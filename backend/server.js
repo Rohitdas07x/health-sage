@@ -4,11 +4,11 @@ const express = require("express");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 
-const connectDB = require("./src/config/db");
+const connectDB = require("./config/db");
 
-const authRoutes = require("./src/routes/authRoutes");
-const reportRoutes = require("./src/routes/reportRoutes");
-const chatRoutes = require("./src/routes/chatRoutes");
+const authRoutes = require("./routes/authRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 connectDB();
 
