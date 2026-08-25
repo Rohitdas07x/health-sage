@@ -11,98 +11,98 @@ Users can upload laboratory reports, extract important health metrics, identify 
 ### 📄 AI- Powered Report Analysis
 
 * Upload and analyze PDF-based medical and laboratory reports
-* Automatically extract important health metrics
-* Identify abnormal values and highlight potential concerns
-* Generate structured report insights using AI
+    * Automatically extract important health metrics
+    * Identify abnormal values and highlight potential concerns
+    * Generate structured report insights using AI
 
-### 🤖 AI-Powered Summaries
+        ### 🤖 AI-Powered Summaries
 
-* Patient-friendly summary for easier understanding
-* Clinical-style summary for detailed interpretation
-* Clear explanations of abnormal health metrics
-* Context-aware insights based on uploaded report data
+    * Patient-friendly summary for easier understanding
+    * Clinical-style summary for detailed interpretation
+    * Clear explanations of abnormal health metrics
+    * Context-aware insights based on uploaded report data
 
-### 💬 Report-Based AI Chatbot
+        ### 💬 Report-Based AI Chatbot
 
-Ask questions directly about your uploaded health report.
+        Ask questions directly about your uploaded health report.
 
-Example questions:
+        Example questions:
 
-* `What is my problem?`
-* `Which values are abnormal?`
-* `Explain my TSH level`
-* `Which specialist should I consult?`
+    * `What is my problem?`
+    * `Which values are abnormal?`
+    * `Explain my TSH level`
+    * `Which specialist should I consult?`
 
-### 📈 Historical Health Trends
+        ### 📈 Historical Health Trends
 
-* Track health metrics across multiple reports
-* Visualize changes over time
-* Compare previous and current health values
-* Monitor important laboratory metrics
+    * Track health metrics across multiple reports
+    * Visualize changes over time
+    * Compare previous and current health values
+    * Monitor important laboratory metrics
 
 
-### 👨‍⚕️ Specialist Recommendations
+    ### 👨‍⚕️ Specialist Recommendations
 
-Health Sage maps abnormal health metrics to relevant healthcare specialists.
+    Health Sage maps abnormal health metrics to relevant healthcare specialists.
 
-Examples:
+    Examples:
 
-| Health Metric        | Suggested Specialist            |
-| -------------------- | ------------------------------- |
-| TSH                  | Endocrinologist                 |
-| Cholesterol          | Cardiologist                    |
-| Blood Sugar          | Diabetologist / Endocrinologist |
-| Abnormal Blood Count | General Physician               |
-| Liver Metrics        | Gastroenterologist              |
+    | Health Metric        | Suggested Specialist            |
+    | -------------------- | ------------------------------- |
+    | TSH                  | Endocrinologist                 |
+    | Cholesterol          | Cardiologist                    |
+    | Blood Sugar          | Diabetologist / Endocrinologist |
+    | Abnormal Blood Count | General Physician               |
+    | Liver Metrics        | Gastroenterologist              |
 
-### 🏥 Nearby Healthcare Suggestions
+    ### 🏥 Nearby Healthcare Suggestions
 
-* Find nearby hospitals and clinics
-* Get recommendations based on detected health concerns
-* Discover relevant healthcare facilities
+    * Find nearby hospitals and clinics
+    * Get recommendations based on detected health concerns
+    * Discover relevant healthcare facilities
 
-### 🔐 Authentication & Security
+    ### 🔐 Authentication & Security
 
-* User registration and login
-* JWT-based authentication
-* Protected API routes
-* Password hashing
-* Input validation
-* Environment variable protection
+    * User registration and login
+    * JWT-based authentication
+    * Protected API routes
+    * Password hashing
+    * Input validation
+    * Environment variable protection
 
----
+    ---
 
-# 🚀 Upcoming Features
+    # 🚀 Upcoming Features
 
-Health Sage is designed to expand beyond PDF laboratory reports.
+    Health Sage is designed to expand beyond PDF laboratory reports.
 
-Future versions may include:
+    Future versions may include:
 
-### 🖼️ Medical Image Analysis
+    ### 🖼️ Medical Image Analysis
 
-* X-Ray image analysis
-* MRI report and image explanation
-* CT Scan analysis
-* Ultrasound / Ultrasonography report explanation
-* Medical image-based AI insights
+    * X-Ray image analysis
+    * MRI report and image explanation
+    * CT Scan analysis
+    * Ultrasound / Ultrasonography report explanation
+    * Medical image-based AI insights
 
-### 📷 Scan & Image Upload
+    ### 📷 Scan & Image Upload
 
-Users will be able to upload supported medical images and reports for AI-assisted explanation.
+    Users will be able to upload supported medical images and reports for AI-assisted explanation.
 
-### 🧠 Enhanced AI Assistant
+    ### 🧠 Enhanced AI Assistant
 
-* More context-aware medical report conversations
-* Better explanations for complex reports
-* Multi-report comparison
-* Personalized health trend analysis
+    * More context-aware medical report conversations
+    * Better explanations for complex reports
+    * Multi-report comparison
+    * Personalized health trend analysis
 
-### 📊 Advanced Health Dashboard
+    ### 📊 Advanced Health Dashboard
 
-* More detailed visualizations
-* Health history timeline
-* Metric comparison
-* Long-term health monitoring
+    * More detailed visualizations
+    * Health history timeline
+    * Metric comparison
+    * Long-term health monitoring
 
 ---
 
@@ -144,136 +144,135 @@ Users will be able to upload supported medical images and reports for AI-assiste
 # 🏗️ Project Architecture
 
 ```text
-health-sage/
-│
-├── backend/
-│   ├── config/
-│   │   └── db.js
-│   │
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── chatController.js
-│   │   └── reportController.js
-│   │
-│   ├── middleware/
-│   │   ├── auth.middleware.js
-│   │   ├── upload.middleware.js
-│   │   └── validate.middleware.js
-│   │
-│   ├── models/
-│   │   ├── Metric.js
-│   │   ├── Report.js
-│   │   └── user.js
-│   │
-│   ├── routes/
-│   │   ├── authRoutes.js
-│   │   ├── chatRoutes.js
-│   │   └── reportRoutes.js
-│   │
-│   ├── services/
-│   │   ├── emailService.js
-│   │   ├── geoapifyService.js
-│   │   ├── groqService.js
-│   │   ├── hospitalService.js
-│   │   ├── placesService.js
-│   │   └── wikidataService.js
-│   │
-│   ├── utils/
-│   │   ├── hash.js
-│   │   └── specialistMap.js
-│   │
-│   ├── .env
-│   ├── package.json
-│   ├── package-lock.json
-│   └── server.js
-│
-├── frontend/
-│   ├── public/
-│   │
-│   ├── src/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   │
-│   ├── .env
-│   ├── index.html
-│   ├── package.json
-│   ├── package-lock.json
-│   └── vite.config.js
-│
-├── .gitignore
-├── README.md
-├── sample.pdf
-└── test.http
-```
+                    health-sage/
+                    │
+                    ├── backend/
+                    │   ├── config/
+                    │   │   └── db.js
+                    │   │
+                    │   ├── controllers/
+                    │   │   ├── authController.js
+                    │   │   ├── chatController.js
+                    │   │   └── reportController.js
+                    │   │
+                    │   ├── middleware/
+                    │   │   ├── auth.middleware.js
+                    │   │   ├── upload.middleware.js
+                    │   │   └── validate.middleware.js
+                    │   │
+                    │   ├── models/
+                    │   │   ├── Metric.js
+                    │   │   ├── Report.js
+                    │   │   └── user.js
+                    │   │
+                    │   ├── routes/
+                    │   │   ├── authRoutes.js
+                    │   │   ├── chatRoutes.js
+                    │   │   └── reportRoutes.js
+                    │   │
+                    │   ├── services/
+                    │   │   ├── emailService.js
+                    │   │   ├── geoapifyService.js
+                    │   │   ├── groqService.js
+                    │   │   ├── hospitalService.js
+                    │   │   ├── placesService.js
+                    │   │   └── wikidataService.js
+                    │   │
+                    │   ├── utils/
+                    │   │   ├── hash.js
+                    │   │   └── specialistMap.js
+                    │   │
+                    │   ├── .env
+                    │   ├── package.json
+                    │   ├── package-lock.json
+                    │   └── server.js
+                    │
+                    ├── frontend/
+                    │   ├── public/
+                    │   │
+                    │   ├── src/
+                    │   │   ├── assets/
+                    │   │   ├── components/
+                    │   │   ├── pages/
+                    │   │   ├── App.jsx
+                    │   │   └── main.jsx
+                    │   │
+                    │   ├── .env
+                    │   ├── index.html
+                    │   ├── package.json
+                    │   ├── package-lock.json
+                    │   └── vite.config.js
+                    │
+                    ├── .gitignore
+                    ├── README.md
+                    ├── sample.pdf
+                    └── test.http
+            ```
 
 ---
-
-# 🔄 Application Workflow
+### 🔄 Application Workflow
 
 ```text
-┌───────────────┐
-│     User      │
-└───────┬───────┘
-        │
-        ▼
-┌─────────────────────────┐
-│ Upload Medical Report   │
-│        PDF File         │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│   PDF Text Extraction   │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│  AI-Powered Analysis    │
-│  Groq + Llama 3.3 70B   │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│    Extract Metrics      │
-│  Detect Abnormal Values │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│     MongoDB Storage     │
-│ Reports + Metrics + User│
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│   Health Sage Analysis  │
-└───────────┬─────────────┘
-            │
-     ┌──────┼────────┬───────────┬───────────┐
-     │      │        │           │           │
-     ▼      ▼        ▼           ▼           ▼
-┌────────┐ ┌──────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐
-│   AI   │ │Abnormal│ │Historical│ │Specialist│ │ Nearby  │
-│Summary │ │ Values │ │  Trends │ │Recommend │ │Hospitals │
-└────────┘ └──────┘ └─────────┘ └─────────┘ └──────────┘
-     │         │          │            │            │
-     └─────────┴──────────┴────────────┴────────────┘
-                              │
-                              ▼
-                  ┌───────────────────────┐
-                  │ Report-Based AI Chat  │
-                  │ Ask Questions About   │
-                  │ Your Health Report    │
-                  └───────────┬───────────┘
-                              │
-                              ▼
-                  ┌───────────────────────┐
-                  │ Health Sage Dashboard │
-                  └───────────────────────┘
-```
+                        ┌───────────────┐
+                        │     User      │
+                        └───────┬───────┘
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │ Upload Medical Report   │
+                    │        PDF File         │
+                    └───────────┬─────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │   PDF Text Extraction   │
+                    └───────────┬─────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │  AI-Powered Analysis    │
+                    │  Groq + Llama 3.3 70B   │
+                    └───────────┬─────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │    Extract Metrics      │
+                    │  Detect Abnormal Values │
+                    └───────────┬─────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │     MongoDB Storage     │
+                    │ Reports + Metrics + User│
+                    └───────────┬─────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │   Health Sage Analysis  │
+                    └───────────┬─────────────┘
+                                │
+                ┌──────┼────────┬───────────┬───────────┐
+                │      │        │           │           │
+                ▼      ▼        ▼           ▼           ▼
+            ┌────────┐ ┌──────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐
+            │   AI   │ │Abnormal│ │Historical│ │Specialist│ │ Nearby  │
+            │Summary │ │ Values │ │  Trends │ │Recommend │ │Hospitals │
+            └────────┘ └──────┘ └─────────┘ └─────────┘ └──────────┘
+                │         │          │            │            │
+                └─────────┴──────────┴────────────┴────────────┘
+                                        │
+                                        ▼
+                            ┌───────────────────────┐
+                            │ Report-Based AI Chat  │
+                            │ Ask Questions About   │
+                            │ Your Health Report    │
+                            └───────────┬───────────┘
+                                        │
+                                        ▼
+                            ┌───────────────────────┐
+                            │ Health Sage Dashboard │
+                            └───────────────────────┘
+    ```
 
 ---
 # 📡 API Overview
