@@ -1,123 +1,150 @@
-# 🩺 Health Sage
+# 🩺 Health Sage - AI-Powered Health Report Analysis Platform
 
-> **AI-Powered Health Report Analysis Platform**
-
+> 
 Health Sage is a full-stack AI-powered healthcare application that helps users understand their medical reports in a simple and organized way.
-
-Users can upload laboratory reports, extract important health metrics, identify abnormal values, view historical trends, receive AI-generated insights, and ask questions about their reports using an intelligent chatbot.
-
-> ⚠️ **Disclaimer:** Health Sage is intended for educational and informational purposes only. It does not replace professional medical advice, diagnosis, or treatment.
+Users can upload laboratory reports, extract important health metrics, identify abnormal values, view historical trends, receive AI-generated insights, and ask questions about their reports using an intelligent chatbot and receive AI-powered metric extraction, patient-friendly explanations, clinical summaries, historical trends, report-based AI assistance, specialist recommendations, and nearby healthcare facility suggestions.
 
 ---
 
-# ✨ Features
+## ✨ Features
 
-## 📄 AI-Powered Report Analysis
+### 📄 AI- Powered Report Analysis
 
-* Upload laboratory reports in PDF format
+* Upload and analyze PDF-based medical and laboratory reports
 * Automatically extract important health metrics
-* Detect abnormal or out-of-range values
-* Generate AI-powered health insights
-* Provide simplified explanations of medical information
+* Identify abnormal values and highlight potential concerns
+* Generate structured report insights using AI
 
-## 🤖 Report-Aware AI Chatbot
+### 🤖 AI-Powered Summaries
 
-Users can ask questions directly about their uploaded health reports.
+* Patient-friendly summary for easier understanding
+* Clinical-style summary for detailed interpretation
+* Clear explanations of abnormal health metrics
+* Context-aware insights based on uploaded report data
+
+### 💬 Report-Based AI Chatbot
+
+Ask questions directly about your uploaded health report.
 
 Example questions:
 
-* What is my problem?
-* Which values are abnormal?
-* What does my TSH level mean?
-* What should I discuss with my doctor?
+* `What is my problem?`
+* `Which values are abnormal?`
+* `Explain my TSH level`
+* `Which specialist should I consult?`
 
-## 📊 Historical Health Trends
+### 📈 Historical Health Trends
 
-Track health metrics across multiple reports.
+* Track health metrics across multiple reports
+* Visualize changes over time
+* Compare previous and current health values
+* Monitor important laboratory metrics
 
-Supported metrics can include:
 
-* WBC Count
-* RBC Count
-* Platelet Count
-* Hemoglobin
-* TSH
-* Free T4
-* LDL Cholesterol
-* HDL Cholesterol
-* Triglycerides
-* Total Cholesterol
+### 👨‍⚕️ Specialist Recommendations
 
-## 🩺 Specialist Recommendations
+Health Sage maps abnormal health metrics to relevant healthcare specialists.
 
-Based on abnormal health metrics, Health Sage can recommend relevant specialists such as:
+Examples:
 
-* General Physician
-* Cardiologist
-* Endocrinologist
+| Health Metric        | Suggested Specialist            |
+| -------------------- | ------------------------------- |
+| TSH                  | Endocrinologist                 |
+| Cholesterol          | Cardiologist                    |
+| Blood Sugar          | Diabetologist / Endocrinologist |
+| Abnormal Blood Count | General Physician               |
+| Liver Metrics        | Gastroenterologist              |
 
-## 📍 Nearby Healthcare Search
+### 🏥 Nearby Healthcare Suggestions
 
-Users can search for nearby hospitals and healthcare facilities.
+* Find nearby hospitals and clinics
+* Get recommendations based on detected health concerns
+* Discover relevant healthcare facilities
 
-## 🔐 Authentication & Security
+### 🔐 Authentication & Security
 
 * User registration and login
 * JWT-based authentication
-* Protected routes
+* Protected API routes
 * Password hashing
-* Request validation
+* Input validation
 * Environment variable protection
+
+---
+
+# 🚀 Upcoming Features
+
+Health Sage is designed to expand beyond PDF laboratory reports.
+
+Future versions may include:
+
+### 🖼️ Medical Image Analysis
+
+* X-Ray image analysis
+* MRI report and image explanation
+* CT Scan analysis
+* Ultrasound / Ultrasonography report explanation
+* Medical image-based AI insights
+
+### 📷 Scan & Image Upload
+
+Users will be able to upload supported medical images and reports for AI-assisted explanation.
+
+### 🧠 Enhanced AI Assistant
+
+* More context-aware medical report conversations
+* Better explanations for complex reports
+* Multi-report comparison
+* Personalized health trend analysis
+
+### 📊 Advanced Health Dashboard
+
+* More detailed visualizations
+* Health history timeline
+* Metric comparison
+* Long-term health monitoring
 
 ---
 
 # 🛠️ Tech Stack
 
-## Backend & Database
+## Backend
 
-![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=flat-square\&logo=node.js\&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?style=flat-square\&logo=mongodb\&logoColor=white)
-![Mongoose](https://img.shields.io/badge/Mongoose-ODM-880000?style=flat-square\&logo=mongoose\&logoColor=white)
-![REST API](https://img.shields.io/badge/REST-API-6DB33F?style=flat-square)
+![Node.js](https://img.shields.io/badge/Node.js-24-339933?style=for-the-badge\&logo=node.js\&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-Backend-000000?style=for-the-badge\&logo=express\&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?style=for-the-badge\&logo=mongodb\&logoColor=white)
+![Mongoose](https://img.shields.io/badge/Mongoose-ODM-880000?style=for-the-badge\&logo=mongoose\&logoColor=white)
+
+### Backend Services
+
+![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=for-the-badge\&logo=jsonwebtokens\&logoColor=white)
+![Multer](https://img.shields.io/badge/Multer-File%20Upload-FF6B6B?style=for-the-badge)
+![Zod](https://img.shields.io/badge/Zod-Validation-3068B7?style=for-the-badge)
+![Nodemailer](https://img.shields.io/badge/Nodemailer-Email-339933?style=for-the-badge\&logo=nodemailer\&logoColor=white)
 
 ## Frontend
 
-![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square\&logo=react\&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-Frontend-646CFF?style=flat-square\&logo=vite\&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Styling-06B6D4?style=flat-square\&logo=tailwindcss\&logoColor=white)
-![Chart.js](https://img.shields.io/badge/Chart.js-Visualization-FF6384?style=flat-square\&logo=chart.js\&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge\&logo=react\&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-Build%20Tool-646CFF?style=for-the-badge\&logo=vite\&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Styling-06B6D4?style=for-the-badge\&logo=tailwindcss\&logoColor=white)
+![Chart.js](https://img.shields.io/badge/Chart.js-Data%20Visualization-FF6384?style=for-the-badge\&logo=chart.js\&logoColor=white)
 
-## AI & Intelligence
+## AI Infrastructure
 
-![Groq](https://img.shields.io/badge/Groq-AI-F55036?style=flat-square)
-![Llama](https://img.shields.io/badge/Llama-3.3_70B-0467DF?style=flat-square)
-![AI](https://img.shields.io/badge/AI-Report_Analysis-8A2BE2?style=flat-square)
-![Chatbot](https://img.shields.io/badge/AI-Report_Aware_Chatbot-7B61FF?style=flat-square)
+![Groq](https://img.shields.io/badge/Groq-AI%20Inference-F55036?style=for-the-badge)
+![Llama](https://img.shields.io/badge/Llama_3.3_70B-AI%20Model-6B4FBB?style=for-the-badge)
 
-## Authentication & Security
+## APIs & Healthcare Services
 
-![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=flat-square\&logo=jsonwebtokens\&logoColor=white)
-![bcrypt](https://img.shields.io/badge/bcrypt-Password_Hashing-338033?style=flat-square)
-![Zod](https://img.shields.io/badge/Zod-Validation-3068B7?style=flat-square)
-
-## APIs & Services
-
-![Geoapify](https://img.shields.io/badge/Geoapify-Location_API-00A991?style=flat-square)
-![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-Overpass_API-7EBC6F?style=flat-square\&logo=openstreetmap\&logoColor=white)
-![Wikidata](https://img.shields.io/badge/Wikidata-Data_Service-006699?style=flat-square\&logo=wikidata\&logoColor=white)
-![Nodemailer](https://img.shields.io/badge/Nodemailer-Email_Service-339933?style=flat-square)
-
-## Developer Tools
-
-![Git](https://img.shields.io/badge/Git-Version_Control-F05032?style=flat-square\&logo=git\&logoColor=white)
-![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square\&logo=github\&logoColor=white)
-![VS Code](https://img.shields.io/badge/VS_Code-Editor-007ACC?style=flat-square\&logo=visualstudiocode\&logoColor=white)
+![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-Location%20Data-7EBC6F?style=for-the-badge\&logo=openstreetmap\&logoColor=white)
+![Geoapify](https://img.shields.io/badge/Geoapify-Location%20API-008CFF?style=for-the-badge)
+![Wikidata](https://img.shields.io/badge/Wikidata-Knowledge%20Base-006699?style=for-the-badge\&logo=wikidata\&logoColor=white)
 
 ---
 
-# 📁 Project Structure
+# 🏗️ Project Architecture
 
-```text
+
 health-sage/
 │
 ├── backend/
@@ -145,7 +172,17 @@ health-sage/
 │   │   └── reportRoutes.js
 │   │
 │   ├── services/
+│   │   ├── emailService.js
+│   │   ├── geoapifyService.js
+│   │   ├── groqService.js
+│   │   ├── hospitalService.js
+│   │   ├── placesService.js
+│   │   └── wikidataService.js
+│   │
 │   ├── utils/
+│   │   ├── hash.js
+│   │   └── specialistMap.js
+│   │
 │   ├── .env
 │   ├── package.json
 │   └── server.js
@@ -165,52 +202,19 @@ health-sage/
 │   └── vite.config.js
 │
 ├── .gitignore
+├── README.md
 ├── sample.pdf
-├── test.http
-└── README.md
-```
+└── test.http
+
 
 ---
 
-# ⚙️ How It Works
+# ⚙️ Installation
 
-```text
-User
- │
- ▼
-Upload Medical Report
- │
- ▼
-PDF Text Extraction
- │
- ▼
-AI-Powered Metric Analysis
- │
- ├── Extract Health Metrics
- ├── Detect Abnormal Values
- └── Generate AI Insights
- │
- ▼
-MongoDB Database
- │
- ▼
-Health Sage Dashboard
- │
- ├── Health Metrics
- ├── AI Summary
- ├── Historical Trends
- ├── AI Chatbot
- └── Specialist Recommendations
-```
-
----
-
-# 🚀 Getting Started
-
-## 1️⃣ Clone the Repository
+## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Rohitdas07x/health-sage.git
+git clone https://github.com/Rohitdas07/health-sage.git
 ```
 
 ```bash
@@ -219,35 +223,34 @@ cd health-sage
 
 ---
 
-# 🔧 Backend Setup
-
-## Install Dependencies
+## 2. Setup Backend
 
 ```bash
 cd backend
+```
+
+Install dependencies:
+
+```bash
 npm install
 ```
 
-## Create Environment File
-
-Create a `.env` file inside the `backend` folder.
-
-Example:
+Create a `.env` file:
 
 ```env
 PORT=5000
-MONGODB_URI=your_mongodb_connection_string
+MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 GROQ_API_KEY=your_groq_api_key
 ```
 
-## Start Backend
+Run the backend:
 
 ```bash
 npm run dev
 ```
 
-Backend runs on:
+The backend will run on:
 
 ```text
 http://localhost:5000
@@ -255,22 +258,27 @@ http://localhost:5000
 
 ---
 
-# 🎨 Frontend Setup
+## 3. Setup Frontend
 
-Open a new terminal.
+Open another terminal:
 
 ```bash
 cd frontend
+```
+
+Install dependencies:
+
+```bash
 npm install
 ```
 
-Then run:
+Run the frontend:
 
 ```bash
 npm run dev
 ```
 
-Frontend will typically run on:
+The application will be available at:
 
 ```text
 http://localhost:5173
@@ -278,40 +286,114 @@ http://localhost:5173
 
 ---
 
-# 📊 Core Functionality
+# 🔄 Application Workflow
 
-Health Sage currently provides:
 
-* User authentication
-* PDF health report upload
-* AI-powered metric extraction
-* Abnormal value detection
-* AI-generated health insights
-* Historical health trends
-* Report-aware AI chatbot
-* Specialist recommendations
-* Nearby healthcare search
+User
+  │
+  ▼
+Upload Medical Report
+  │
+  ▼
+PDF Text Extraction
+  │
+  ▼
+AI Metric Extraction
+  │
+  ▼
+MongoDB Storage
+  │
+  ├──────────────► AI Summary
+  │
+  ├──────────────► Abnormal Metric Detection
+  │
+  ├──────────────► Specialist Recommendation
+  │
+  ├──────────────► Nearby Healthcare Suggestions
+  │
+  └──────────────► Historical Trend Visualization
+                     │
+                     ▼
+                Health Sage Dashboard
+```
 
 ---
 
-# 🔮 Future Roadmap
+# 📡 API Overview
+
+## Authentication
+
+```text
+POST /api/auth/register
+POST /api/auth/login
+```
+
+## Reports
+
+```text
+POST /api/reports/upload
+GET  /api/reports
+GET  /api/reports/:id
+GET  /api/reports/metrics/trends
+```
+
+## AI Chat
+
+```text
+POST /api/chat
+```
+
+---
+
+# 🧠 AI Capabilities
+
+Health Sage uses AI to process medical report information and provide:
+
+* Structured metric extraction
+* Patient-friendly explanations
+* Clinical summaries
+* Abnormal value identification
+* Context-aware report conversations
+* Specialist recommendations
+
+The AI system is designed to work with the information extracted from uploaded reports rather than generating completely unrelated responses.
+
+---
+
+# 📊 Supported Health Insights
+
+Examples of metrics that can be tracked include:
+
+* WBC Count
+* RBC Count
+* Platelet Count
+* Hemoglobin
+* TSH
+* Free T4
+* LDL Cholesterol
+* HDL Cholesterol
+* Triglycerides
+* Total Cholesterol
+
+Additional metrics can be supported as the application evolves.
+
+---
+
+🔮 Future Roadmap
 
 The next version of Health Sage aims to support additional types of medical reports and AI-assisted medical image understanding.
 
-## 🩻 Medical Image & Report Support
+🩻 Medical Image & Report Support
 
 Future versions may include support for:
 
-* X-ray images and reports
-* CT Scan images and reports
-* MRI images and reports
-* Ultrasound / Ultrasonography images and reports
-* Medical image explanation using AI
-* Combined image and report analysis
-
-### Planned Workflow
-
-```text
+X-ray images and reports
+CT Scan images and reports
+MRI images and reports
+Ultrasound / Ultrasonography images and reports
+Medical image explanation using AI
+Combined image and report analysis
+Planned Workflow
 Upload Medical Image or Report
               │
               ▼
@@ -325,23 +407,34 @@ Upload Medical Image or Report
               │
               ▼
  Suggest Questions for a Healthcare Professional
-```
 
-> ⚠️ Future AI image features are intended to assist with understanding medical information and are not designed to provide a definitive medical diagnosis.
+🌟 Additional Future Improvements
 
-## 🌟 Additional Future Improvements
-
-* 🎙️ Voice-based health assistant
-* 🌐 Multi-language support
-* 📄 Downloadable AI health summary
-* 📈 Advanced health analytics
-* 🔔 Personalized health reminders
-* 👨‍⚕️ Doctor appointment integration
-* 📱 Improved mobile experience
+🎙️ Voice-based health assistant
+🌐 Multi-language support
+📈 Advanced health analytics
+🔔 Personalized health reminders
+👨‍⚕️ Doctor appointment integration
+📱 Improved mobile experience
 
 ---
 
-# 🔒 Security & Privacy
+# 🤝 Contributing
+
+Contributions, feature suggestions, and improvements are welcome.
+
+```bash
+1. Fork the repository
+2. Create a new branch
+3. Make your changes
+4. Commit your changes
+5. Push the branch
+6. Create a Pull Request
+```
+
+---
+
+🔒 Security & Privacy
 
 Health information is sensitive. The application includes:
 
@@ -349,14 +442,10 @@ Health information is sensitive. The application includes:
 * Password hashing
 * Protected API routes
 * Environment variable protection
-* API key protection through `.env`
+* API key protection through .env
 * Input validation
 
-> `.env` files and sensitive credentials should never be committed to GitHub.
-
----
-
-# 🎯 Project Goal
+🎯 Project Goal
 
 Health Sage aims to make complex medical information easier for everyday users to understand.
 
@@ -368,16 +457,52 @@ The platform focuses on helping users understand:
 * What questions they can ask their doctor
 * Which type of specialist may be relevant
 
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
 ---
 
 # 👨‍💻 Author
 
 **Rohit Das**
-
 Full-Stack Developer | AI Enthusiast
+
+![GitHub](https://img.shields.io/badge/GitHub-Rohitdas07-181717?style=for-the-badge\&logo=github\&logoColor=white)
 
 ---
 
-## ⭐ Support
+# 🙏 Acknowledgments
 
-If you find this project useful or interesting, consider giving the repository a ⭐.
+* **Node.js** - JavaScript runtime environment
+* **Express.js** - Backend web framework
+* **MongoDB** - NoSQL database
+* **Mongoose** - MongoDB object modeling
+* **React** - Frontend UI library
+* **Vite** - Fast frontend development tooling
+* **Tailwind CSS** - Utility-first styling
+* **Chart.js** - Data visualization
+* **Groq** - Fast AI inference
+* **Llama** - Large language model
+* **Geoapify** - Location and geospatial services
+* **OpenStreetMap** - Geographic data
+* **Wikidata** - Structured knowledge base
+
+---
+
+# 📊 Project Stats
+
+![GitHub Stars](https://img.shields.io/github/stars/Rohitdas07/health-sage?style=for-the-badge\&logo=github)
+![GitHub Forks](https://img.shields.io/github/forks/Rohitdas07/health-sage?style=for-the-badge\&logo=github)
+![GitHub Issues](https://img.shields.io/github/issues/Rohitdas07/health-sage?style=for-the-badge\&logo=github)
+
+---
+
+<div align="center">
+
+### Made with ❤️ for better health understanding
+
+### ⭐ Star this repository if you find it helpful!
+
+</div>
