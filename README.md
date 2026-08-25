@@ -141,13 +141,11 @@ Users will be able to upload supported medical images and reports for AI-assiste
 ![Wikidata](https://img.shields.io/badge/Wikidata-Knowledge%20Base-006699?style=for-the-badge\&logo=wikidata\&logoColor=white)
 
 ---
-
-# 🏗️ Project Architecture
-
-
+🏗️ Project Architecture
 health-sage/
 │
 ├── backend/
+│   │
 │   ├── config/
 │   │   └── db.js
 │   │
@@ -185,9 +183,11 @@ health-sage/
 │   │
 │   ├── .env
 │   ├── package.json
+│   ├── package-lock.json
 │   └── server.js
 │
 ├── frontend/
+│   │
 │   ├── public/
 │   │
 │   ├── src/
@@ -198,14 +198,16 @@ health-sage/
 │   │   └── main.jsx
 │   │
 │   ├── .env
+│   ├── .gitignore
 │   ├── package.json
+│   ├── package-lock.json
+│   ├── index.html
 │   └── vite.config.js
 │
 ├── .gitignore
 ├── README.md
 ├── sample.pdf
 └── test.http
-
 
 ---
 
@@ -286,36 +288,67 @@ http://localhost:5173
 
 ---
 
-# 🔄 Application Workflow
+🔄 Application Workflow
 
 
-User
-  │
-  ▼
-Upload Medical Report
-  │
-  ▼
-PDF Text Extraction
-  │
-  ▼
-AI Metric Extraction
-  │
-  ▼
-MongoDB Storage
-  │
-  ├──────────────► AI Summary
-  │
-  ├──────────────► Abnormal Metric Detection
-  │
-  ├──────────────► Specialist Recommendation
-  │
-  ├──────────────► Nearby Healthcare Suggestions
-  │
-  └──────────────► Historical Trend Visualization
-                     │
-                     ▼
-                Health Sage Dashboard
-```
+                         ┌─────────────────────┐
+                         │        User         │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                    ┌──────────────────────────────┐
+                    │   Upload Medical PDF Report  │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │       PDF Text Extraction    │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │    AI-Powered Metric Analysis│
+                    │        using Groq LLM        │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │       MongoDB Storage        │
+                    │  Reports + Metrics + User    │
+                    └──────────────┬───────────────┘
+                                   │
+          ┌────────────────────────┼────────────────────────┐
+          │                        │                        │
+          ▼                        ▼                        ▼
+┌──────────────────┐    ┌──────────────────┐    ┌────────────────────┐
+│ AI Report Summary│    │ Abnormal Metric  │    │ Historical Health  │
+│ Patient + Clinical│   │    Detection     │    │       Trends       │
+└─────────┬────────┘    └─────────┬────────┘    └─────────┬──────────┘
+          │                       │                       │
+          └───────────────────────┼───────────────────────┘
+                                  │
+                                  ▼
+                    ┌──────────────────────────────┐
+                    │ Specialist Recommendation    │
+                    │ Based on Abnormal Metrics    │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │ Nearby Hospitals & Clinics   │
+                    │ Geoapify + OSM + Wikidata    │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │   Report-Based AI Chatbot    │
+                    │ Ask Questions About Report   │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │     Health Sage Dashboard    │
+                    └──────────────────────────────┘
 
 ---
 
