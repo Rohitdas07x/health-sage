@@ -141,11 +141,12 @@ Users will be able to upload supported medical images and reports for AI-assiste
 ![Wikidata](https://img.shields.io/badge/Wikidata-Knowledge%20Base-006699?style=for-the-badge\&logo=wikidata\&logoColor=white)
 
 ---
-🏗️ Project Architecture
+# 🏗️ Project Architecture
+
+```text
 health-sage/
 │
 ├── backend/
-│   │
 │   ├── config/
 │   │   └── db.js
 │   │
@@ -187,7 +188,6 @@ health-sage/
 │   └── server.js
 │
 ├── frontend/
-│   │
 │   ├── public/
 │   │
 │   ├── src/
@@ -198,17 +198,85 @@ health-sage/
 │   │   └── main.jsx
 │   │
 │   ├── .env
-│   ├── .gitignore
+│   ├── index.html
 │   ├── package.json
 │   ├── package-lock.json
-│   ├── index.html
 │   └── vite.config.js
 │
 ├── .gitignore
 ├── README.md
 ├── sample.pdf
 └── test.http
+```
 
+---
+
+# 🔄 Application Workflow
+
+```text
+┌───────────────┐
+│     User      │
+└───────┬───────┘
+        │
+        ▼
+┌─────────────────────────┐
+│ Upload Medical Report   │
+│        PDF File         │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│   PDF Text Extraction   │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│  AI-Powered Analysis    │
+│  Groq + Llama 3.3 70B   │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│    Extract Metrics      │
+│  Detect Abnormal Values │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│     MongoDB Storage     │
+│ Reports + Metrics + User│
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│   Health Sage Analysis  │
+└───────────┬─────────────┘
+            │
+     ┌──────┼────────┬───────────┬───────────┐
+     │      │        │           │           │
+     ▼      ▼        ▼           ▼           ▼
+┌────────┐ ┌──────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐
+│   AI   │ │Abnormal│ │Historical│ │Specialist│ │ Nearby  │
+│Summary │ │ Values │ │  Trends │ │Recommend │ │Hospitals │
+└────────┘ └──────┘ └─────────┘ └─────────┘ └──────────┘
+     │         │          │            │            │
+     └─────────┴──────────┴────────────┴────────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Report-Based AI Chat  │
+                  │ Ask Questions About   │
+                  │ Your Health Report    │
+                  └───────────┬───────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Health Sage Dashboard │
+                  └───────────────────────┘
+```
+
+---
+# 📡 API Overview
 ---
 
 # ⚙️ Installation
@@ -222,8 +290,6 @@ git clone https://github.com/Rohitdas07/health-sage.git
 ```bash
 cd health-sage
 ```
-
----
 
 ## 2. Setup Backend
 
@@ -285,98 +351,9 @@ The application will be available at:
 ```text
 http://localhost:5173
 ```
-
 ---
-
-🔄 Application Workflow
-
-
-                         ┌─────────────────────┐
-                         │        User         │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                    ┌──────────────────────────────┐
-                    │   Upload Medical PDF Report  │
-                    └──────────────┬───────────────┘
-                                   │
-                                   ▼
-                    ┌──────────────────────────────┐
-                    │       PDF Text Extraction    │
-                    └──────────────┬───────────────┘
-                                   │
-                                   ▼
-                    ┌──────────────────────────────┐
-                    │    AI-Powered Metric Analysis│
-                    │        using Groq LLM        │
-                    └──────────────┬───────────────┘
-                                   │
-                                   ▼
-                    ┌──────────────────────────────┐
-                    │       MongoDB Storage        │
-                    │  Reports + Metrics + User    │
-                    └──────────────┬───────────────┘
-                                   │
-          ┌────────────────────────┼────────────────────────┐
-          │                        │                        │
-          ▼                        ▼                        ▼
-┌──────────────────┐    ┌──────────────────┐    ┌────────────────────┐
-│ AI Report Summary│    │ Abnormal Metric  │    │ Historical Health  │
-│ Patient + Clinical│   │    Detection     │    │       Trends       │
-└─────────┬────────┘    └─────────┬────────┘    └─────────┬──────────┘
-          │                       │                       │
-          └───────────────────────┼───────────────────────┘
-                                  │
-                                  ▼
-                    ┌──────────────────────────────┐
-                    │ Specialist Recommendation    │
-                    │ Based on Abnormal Metrics    │
-                    └──────────────┬───────────────┘
-                                   │
-                                   ▼
-                    ┌──────────────────────────────┐
-                    │ Nearby Hospitals & Clinics   │
-                    │ Geoapify + OSM + Wikidata    │
-                    └──────────────┬───────────────┘
-                                   │
-                                   ▼
-                    ┌──────────────────────────────┐
-                    │   Report-Based AI Chatbot    │
-                    │ Ask Questions About Report   │
-                    └──────────────┬───────────────┘
-                                   │
-                                   ▼
-                    ┌──────────────────────────────┐
-                    │     Health Sage Dashboard    │
-                    └──────────────────────────────┘
-
----
-
-# 📡 API Overview
-
-## Authentication
-
-```text
-POST /api/auth/register
-POST /api/auth/login
 ```
 
-## Reports
-
-```text
-POST /api/reports/upload
-GET  /api/reports
-GET  /api/reports/:id
-GET  /api/reports/metrics/trends
-```
-
-## AI Chat
-
-```text
-POST /api/chat
-```
-
----
 
 # 🧠 AI Capabilities
 
@@ -412,11 +389,9 @@ Additional metrics can be supported as the application evolves.
 
 ---
 
-🔮 Future Roadmap
+### 🔮 Future Roadmap
 
-The next version of Health Sage aims to support additional types of medical reports and AI-assisted medical image understanding.
-
-🩻 Medical Image & Report Support
+### 🩻 Medical Image & Report Support
 
 Future versions may include support for:
 
@@ -441,7 +416,7 @@ Upload Medical Image or Report
               ▼
  Suggest Questions for a Healthcare Professional
 
-🌟 Additional Future Improvements
+   🌟 Additional Future Improvements
 
 🎙️ Voice-based health assistant
 🌐 Multi-language support
@@ -452,7 +427,7 @@ Upload Medical Image or Report
 
 ---
 
-# 🤝 Contributing
+  🤝 Contributing
 
 Contributions, feature suggestions, and improvements are welcome.
 
@@ -467,7 +442,7 @@ Contributions, feature suggestions, and improvements are welcome.
 
 ---
 
-🔒 Security & Privacy
+### 🔒 Security & Privacy
 
 Health information is sensitive. The application includes:
 
@@ -478,7 +453,9 @@ Health information is sensitive. The application includes:
 * API key protection through .env
 * Input validation
 
-🎯 Project Goal
+---
+
+### 🎯 Project Goal
 
 Health Sage aims to make complex medical information easier for everyday users to understand.
 
@@ -489,6 +466,8 @@ The platform focuses on helping users understand:
 * How health metrics change over time
 * What questions they can ask their doctor
 * Which type of specialist may be relevant
+
+---
 
 
 # 📄 License
@@ -503,24 +482,7 @@ This project is licensed under the **MIT License**.
 Full-Stack Developer | AI Enthusiast
 
 ![GitHub](https://img.shields.io/badge/GitHub-Rohitdas07-181717?style=for-the-badge\&logo=github\&logoColor=white)
-
 ---
-
-# 🙏 Acknowledgments
-
-* **Node.js** - JavaScript runtime environment
-* **Express.js** - Backend web framework
-* **MongoDB** - NoSQL database
-* **Mongoose** - MongoDB object modeling
-* **React** - Frontend UI library
-* **Vite** - Fast frontend development tooling
-* **Tailwind CSS** - Utility-first styling
-* **Chart.js** - Data visualization
-* **Groq** - Fast AI inference
-* **Llama** - Large language model
-* **Geoapify** - Location and geospatial services
-* **OpenStreetMap** - Geographic data
-* **Wikidata** - Structured knowledge base
 
 ---
 
