@@ -141,78 +141,79 @@ Users can upload laboratory reports, extract important health metrics, identify 
 ![Wikidata](https://img.shields.io/badge/Wikidata-Knowledge%20Base-006699?style=for-the-badge\&logo=wikidata\&logoColor=white)
 
 ---
+``
 # 🏗️ Project Architecture
+               ```text
 
-```text
-                    health-sage/
-                    │
-                    ├── backend/
-                    │   ├── config/
-                    │   │   └── db.js
-                    │   │
-                    │   ├── controllers/
-                    │   │   ├── authController.js
-                    │   │   ├── chatController.js
-                    │   │   └── reportController.js
-                    │   │
-                    │   ├── middleware/
-                    │   │   ├── auth.middleware.js
-                    │   │   ├── upload.middleware.js
-                    │   │   └── validate.middleware.js
-                    │   │
-                    │   ├── models/
-                    │   │   ├── Metric.js
-                    │   │   ├── Report.js
-                    │   │   └── user.js
-                    │   │
-                    │   ├── routes/
-                    │   │   ├── authRoutes.js
-                    │   │   ├── chatRoutes.js
-                    │   │   └── reportRoutes.js
-                    │   │
-                    │   ├── services/
-                    │   │   ├── emailService.js
-                    │   │   ├── geoapifyService.js
-                    │   │   ├── groqService.js
-                    │   │   ├── hospitalService.js
-                    │   │   ├── placesService.js
-                    │   │   └── wikidataService.js
-                    │   │
-                    │   ├── utils/
-                    │   │   ├── hash.js
-                    │   │   └── specialistMap.js
-                    │   │
-                    │   ├── .env
-                    │   ├── package.json
-                    │   ├── package-lock.json
-                    │   └── server.js
-                    │
-                    ├── frontend/
-                    │   ├── public/
-                    │   │
-                    │   ├── src/
-                    │   │   ├── assets/
-                    │   │   ├── components/
-                    │   │   ├── pages/
-                    │   │   ├── App.jsx
-                    │   │   └── main.jsx
-                    │   │
-                    │   ├── .env
-                    │   ├── index.html
-                    │   ├── package.json
-                    │   ├── package-lock.json
-                    │   └── vite.config.js
-                    │
-                    ├── .gitignore
-                    ├── README.md
-                    ├── sample.pdf
-                    └── test.http
-            ```
-
+                 health-sage/
+                 │
+                 ├── backend/
+                 │   ├── config/
+                 │   │   └── db.js
+                 │   │
+                 │   ├── controllers/
+                 │   │   ├── authController.js
+                 │   │   ├── chatController.js
+                 │   │   └── reportController.js
+                 │   │
+                 │   ├── middleware/
+                 │   │   ├── auth.middleware.js
+                 │   │   ├── upload.middleware.js
+                 │   │   └── validate.middleware.js
+                 │   │
+                 │   ├── models/
+                 │   │   ├── Metric.js
+                 │   │   ├── Report.js
+                 │   │   └── user.js
+                 │   │
+                 │   ├── routes/
+                 │   │   ├── authRoutes.js
+                 │   │   ├── chatRoutes.js
+                 │   │   └── reportRoutes.js
+                 │   │
+                 │   ├── services/
+                 │   │   ├── emailService.js
+                 │   │   ├── geoapifyService.js
+                 │   │   ├── groqService.js
+                 │   │   ├── hospitalService.js
+                 │   │   ├── placesService.js
+                 │   │   └── wikidataService.js
+                 │   │
+                 │   ├── utils/
+                 │   │   ├── hash.js
+                 │   │   └── specialistMap.js
+                 │   │
+                 │   ├── .env
+                 │   ├── package.json
+                 │   ├── package-lock.json
+                 │   └── server.js
+                 │
+                 ├── frontend/
+                 │   ├── public/
+                 │   │
+                 │   ├── src/
+                 │   │   ├── assets/
+                 │   │   ├── components/
+                 │   │   ├── pages/
+                 │   │   ├── App.jsx
+                 │   │   └── main.jsx
+                 │   │
+                 │   ├── .env
+                 │   ├── index.html
+                 │   ├── package.json
+                 │   ├── package-lock.json
+                 │   └── vite.config.js
+                 │
+                 ├── .gitignore
+                 ├── README.md
+                 ├── sample.pdf
+                 └── test.http
+         
+          
 ---
 ### 🔄 Application Workflow
 
-```text
+`
                         ┌───────────────┐
                         │     User      │
                         └───────┬───────┘
@@ -272,7 +273,7 @@ Users can upload laboratory reports, extract important health metrics, identify 
                             ┌───────────────────────┐
                             │ Health Sage Dashboard │
                             └───────────────────────┘
-    ```
+    ``
 
 ---
 # 📡 API Overview
@@ -282,29 +283,29 @@ Users can upload laboratory reports, extract important health metrics, identify 
 
 ## 1. Clone the Repository
 
-```bash
+``
 git clone https://github.com/Rohitdas07/health-sage.git
 ```
 
-```bash
+```
 cd health-sage
 ```
 
 ## 2. Setup Backend
 
-```bash
+```
 cd backend
 ```
 
 Install dependencies:
 
-```bash
+```
 npm install
 ```
 
 Create a `.env` file:
 
-```env
+```
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
@@ -313,13 +314,13 @@ GROQ_API_KEY=your_groq_api_key
 
 Run the backend:
 
-```bash
+```
 npm run dev
 ```
 
 The backend will run on:
 
-```text
+```
 http://localhost:5000
 ```
 
@@ -353,7 +354,7 @@ http://localhost:5173
 ---
 ```
 
-
+```
 # 🧠 AI Capabilities
 
 Health Sage uses AI to process medical report information and provide:
@@ -425,12 +426,13 @@ Upload Medical Image or Report
 📱 Improved mobile experience
 
 ---
+``
 
   🤝 Contributing
 
 Contributions, feature suggestions, and improvements are welcome.
 
-```bash
+```
 1. Fork the repository
 2. Create a new branch
 3. Make your changes
