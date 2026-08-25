@@ -211,6 +211,7 @@ Users can upload laboratory reports, extract important health metrics, identify 
          
           
 ---
+<<<<<<< HEAD
 ### 🔄 Application Workflow
 
 `
@@ -276,6 +277,68 @@ Users can upload laboratory reports, extract important health metrics, identify 
     ``
 
 ---
+=======
+🔄 Application Workflow
+┌───────────────┐
+│     User      │
+└───────┬───────┘
+        │
+        ▼
+┌─────────────────────────┐
+│ Upload Medical Report   │
+│        PDF File         │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│   PDF Text Extraction   │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│  AI-Powered Analysis    │
+│  Groq + Llama 3.3 70B   │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│    Extract Metrics      │
+│  Detect Abnormal Values │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│     MongoDB Storage     │
+│ Reports + Metrics + User│
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│   Health Sage Analysis  │
+└───────────┬─────────────┘
+            │
+     ┌──────┼────────┬───────────┬───────────┐
+     │      │        │           │           │
+     ▼      ▼        ▼           ▼           ▼
+┌────────┐ ┌──────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐
+│   AI   │ │Abnormal│ │Historical│ │Specialist│ │ Nearby  │
+│Summary │ │ Values │ │  Trends │ │Recommend │ │Hospitals │
+└────────┘ └──────┘ └─────────┘ └─────────┘ └──────────┘
+     │         │          │            │            │
+     └─────────┴──────────┴────────────┴────────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Report-Based AI Chat  │
+                  │ Ask Questions About   │
+                  │ Your Health Report    │
+                  └───────────┬───────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Health Sage Dashboard │
+                  └───────────────────────┘
+>>>>>>> 33179d7 (docs: update project architecture and workflow)
 # 📡 API Overview
 ---
 
