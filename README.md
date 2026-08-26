@@ -1,36 +1,10 @@
-<div align="center">
-
 # 🩺 Health Sage
 
 ### AI-Powered Health Report Analysis Platform
 
-**Health Sage helps users upload laboratory reports and receive AI-powered metric extraction, patient-friendly explanations, clinical summaries, historical trends, report-based AI assistance, specialist recommendations, and nearby healthcare facility suggestions.**
-
-<br>
-
-![Health Sage](https://img.shields.io/badge/Health%20Sage-AI%20Healthcare-0d9488?style=for-the-badge)
-
-![GitHub Stars](https://img.shields.io/github/stars/im-raj5832/health-sage?style=for-the-badge\&logo=github)
-
-![GitHub Forks](https://img.shields.io/github/forks/im-raj5832/health-sage?style=for-the-badge\&logo=github)
-
-![GitHub Issues](https://img.shields.io/github/issues/im-raj5832/health-sage?style=for-the-badge\&logo=github)
-
-</div>
-
----
-
-## 📌 About Health Sage
-
-<div align="center">
-
-**Health Sage** is a full-stack AI-powered healthcare application designed to help users understand complex medical and laboratory reports in a simple, organized, and user-friendly way.
-
-</div>
+Health Sage is a full-stack AI-powered healthcare application designed to help users understand complex medical and laboratory reports in a simple, organized, and user-friendly way.
 
 Users can upload PDF-based medical reports, extract important health metrics, identify abnormal values, generate AI-powered summaries, track health trends over time, ask questions about their reports, receive specialist recommendations, and discover nearby healthcare facilities.
-
-The platform combines **React, Node.js, Express.js, MongoDB, Groq, and Llama 3.3 70B** to provide an intelligent health-report analysis experience.
 
 ---
 
@@ -42,7 +16,6 @@ Health Sage allows users to upload PDF-based laboratory and medical reports.
 
 The system can:
 
-* Upload PDF medical/laboratory reports
 * Extract text from uploaded reports
 * Automatically identify important health metrics
 * Detect abnormal or out-of-range values
@@ -52,8 +25,6 @@ The system can:
 ---
 
 ## 🤖 AI-Powered Health Summaries
-
-Health Sage provides different types of AI-generated explanations to make medical information easier to understand.
 
 ### 👤 Patient-Friendly Summary
 
@@ -97,7 +68,7 @@ Which specialist should I consult?
 What should I ask my doctor about this report?
 ```
 
-The chatbot is designed to provide answers based on the information extracted from the uploaded report.
+The chatbot provides answers based on information extracted from the uploaded report.
 
 ---
 
@@ -133,7 +104,7 @@ Example metrics include:
 
 The system identifies potentially abnormal health values from uploaded reports.
 
-Abnormal metrics can be highlighted and used for:
+Abnormal metrics can be used for:
 
 * AI-generated explanations
 * Specialist recommendations
@@ -154,13 +125,13 @@ Health Sage maps detected abnormal health metrics to relevant healthcare special
 | Abnormal Blood Count         | General Physician               |
 | Liver-related Metrics        | Gastroenterologist              |
 
-These recommendations are intended to help users understand which type of healthcare professional may be relevant to discuss their results with.
+These recommendations help users understand which type of healthcare professional may be relevant to discuss their results with.
 
 ---
 
 ## 🏥 Nearby Healthcare Suggestions
 
-Health Sage can provide nearby healthcare facility suggestions based on location-related services.
+Health Sage can provide nearby healthcare facility suggestions.
 
 The system can help users discover:
 
@@ -169,20 +140,19 @@ The system can help users discover:
 * Healthcare facilities
 * Relevant healthcare locations
 
-The project uses external location and knowledge services such as **OpenStreetMap, Geoapify, and Wikidata**.
+The project uses services such as OpenStreetMap, Geoapify, and Wikidata.
 
 ---
 
 ## 🔐 Authentication & Security
 
-Health Sage includes security-focused backend functionality such as:
+Health Sage includes:
 
-* User registration
-* User login
+* User registration and login
 * JWT-based authentication
 * Protected API routes
 * Password hashing
-* Request/input validation
+* Input validation
 * Environment variable protection
 * API key protection through `.env`
 
@@ -194,256 +164,41 @@ Health Sage includes security-focused backend functionality such as:
 
 ## Frontend
 
-![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge\&logo=react\&logoColor=black)
 
-![Vite](https://img.shields.io/badge/Vite-Build%20Tool-646CFF?style=for-the-badge\&logo=vite\&logoColor=white)
 
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-Styling-06B6D4?style=for-the-badge\&logo=tailwindcss\&logoColor=white)
-
-![Chart.js](https://img.shields.io/badge/Chart.js-Data%20Visualization-FF6384?style=for-the-badge\&logo=chart.js\&logoColor=white)
+\
 
 ## Backend
 
-![Node.js](https://img.shields.io/badge/Node.js-24-339933?style=for-the-badge\&logo=node.js\&logoColor=white)
 
-![Express.js](https://img.shields.io/badge/Express.js-Backend-000000?style=for-the-badge\&logo=express\&logoColor=white)
 
-![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?style=for-the-badge\&logo=mongodb\&logoColor=white)
-
-![Mongoose](https://img.shields.io/badge/Mongoose-ODM-880000?style=for-the-badge\&logo=mongoose\&logoColor=white)
+\
 
 ## Backend Services
 
-![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=for-the-badge\&logo=jsonwebtokens\&logoColor=white)
 
-![Multer](https://img.shields.io/badge/Multer-File%20Upload-FF6B6B?style=for-the-badge)
 
-![Zod](https://img.shields.io/badge/Zod-Validation-3068B7?style=for-the-badge)
-
-![Nodemailer](https://img.shields.io/badge/Nodemailer-Email-339933?style=for-the-badge\&logo=nodemailer\&logoColor=white)
+\
 
 ## AI Infrastructure
 
-![Groq](https://img.shields.io/badge/Groq-AI%20Inference-F55036?style=for-the-badge)
-
-![Llama](https://img.shields.io/badge/Llama_3.3_70B-AI%20Model-6B4FBB?style=for-the-badge)
+\
 
 ## APIs & Healthcare Services
 
-![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-Location%20Data-7EBC6F?style=for-the-badge\&logo=openstreetmap\&logoColor=white)
 
-![Geoapify](https://img.shields.io/badge/Geoapify-Location%20API-008CFF?style=for-the-badge)
-
-![Wikidata](https://img.shields.io/badge/Wikidata-Knowledge%20Base-006699?style=for-the-badge\&logo=wikidata\&logoColor=white)
+\
 
 </div>
 
 ---
+
 # 🏗️ Project Architecture
-               ```text
 
-<<<<<<< HEAD
-                 health-sage/
-                 │
-                 ├── backend/
-                 │   ├── config/
-                 │   │   └── db.js
-                 │   │
-                 │   ├── controllers/
-                 │   │   ├── authController.js
-                 │   │   ├── chatController.js
-                 │   │   └── reportController.js
-                 │   │
-                 │   ├── middleware/
-                 │   │   ├── auth.middleware.js
-                 │   │   ├── upload.middleware.js
-                 │   │   └── validate.middleware.js
-                 │   │
-                 │   ├── models/
-                 │   │   ├── Metric.js
-                 │   │   ├── Report.js
-                 │   │   └── user.js
-                 │   │
-                 │   ├── routes/
-                 │   │   ├── authRoutes.js
-                 │   │   ├── chatRoutes.js
-                 │   │   └── reportRoutes.js
-                 │   │
-                 │   ├── services/
-                 │   │   ├── emailService.js
-                 │   │   ├── geoapifyService.js
-                 │   │   ├── groqService.js
-                 │   │   ├── hospitalService.js
-                 │   │   ├── placesService.js
-                 │   │   └── wikidataService.js
-                 │   │
-                 │   ├── utils/
-                 │   │   ├── hash.js
-                 │   │   └── specialistMap.js
-                 │   │
-                 │   ├── .env
-                 │   ├── package.json
-                 │   ├── package-lock.json
-                 │   └── server.js
-                 │
-                 ├── frontend/
-                 │   ├── public/
-                 │   │
-                 │   ├── src/
-                 │   │   ├── assets/
-                 │   │   ├── components/
-                 │   │   ├── pages/
-                 │   │   ├── App.jsx
-                 │   │   └── main.jsx
-                 │   │
-                 │   ├── .env
-                 │   ├── index.html
-                 │   ├── package.json
-                 │   ├── package-lock.json
-                 │   └── vite.config.js
-                 │
-                 ├── .gitignore
-                 ├── README.md
-                 ├── sample.pdf
-                 └── test.http
-         
-          
----
-<<<<<<< HEAD
-### 🔄 Application Workflow
-
-`
-                        ┌───────────────┐
-                        │     User      │
-                        └───────┬───────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │ Upload Medical Report   │
-                    │        PDF File         │
-                    └───────────┬─────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │   PDF Text Extraction   │
-                    └───────────┬─────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │  AI-Powered Analysis    │
-                    │  Groq + Llama 3.3 70B   │
-                    └───────────┬─────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │    Extract Metrics      │
-                    │  Detect Abnormal Values │
-                    └───────────┬─────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │     MongoDB Storage     │
-                    │ Reports + Metrics + User│
-                    └───────────┬─────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │   Health Sage Analysis  │
-                    └───────────┬─────────────┘
-                                │
-                ┌──────┼────────┬───────────┬───────────┐
-                │      │        │           │           │
-                ▼      ▼        ▼           ▼           ▼
-            ┌────────┐ ┌──────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐
-            │   AI   │ │Abnormal│ │Historical│ │Specialist│ │ Nearby  │
-            │Summary │ │ Values │ │  Trends │ │Recommend │ │Hospitals │
-            └────────┘ └──────┘ └─────────┘ └─────────┘ └──────────┘
-                │         │          │            │            │
-                └─────────┴──────────┴────────────┴────────────┘
-                                        │
-                                        ▼
-                            ┌───────────────────────┐
-                            │ Report-Based AI Chat  │
-                            │ Ask Questions About   │
-                            │ Your Health Report    │
-                            └───────────┬───────────┘
-                                        │
-                                        ▼
-                            ┌───────────────────────┐
-                            │ Health Sage Dashboard │
-                            └───────────────────────┘
-    ``
-
----
-=======
-🔄 Application Workflow
-┌───────────────┐
-│     User      │
-└───────┬───────┘
-        │
-        ▼
-┌─────────────────────────┐
-│ Upload Medical Report   │
-│        PDF File         │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│   PDF Text Extraction   │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│  AI-Powered Analysis    │
-│  Groq + Llama 3.3 70B   │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│    Extract Metrics      │
-│  Detect Abnormal Values │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│     MongoDB Storage     │
-│ Reports + Metrics + User│
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│   Health Sage Analysis  │
-└───────────┬─────────────┘
-            │
-     ┌──────┼────────┬───────────┬───────────┐
-     │      │        │           │           │
-     ▼      ▼        ▼           ▼           ▼
-┌────────┐ ┌──────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐
-│   AI   │ │Abnormal│ │Historical│ │Specialist│ │ Nearby  │
-│Summary │ │ Values │ │  Trends │ │Recommend │ │Hospitals │
-└────────┘ └──────┘ └─────────┘ └─────────┘ └──────────┘
-     │         │          │            │            │
-     └─────────┴──────────┴────────────┴────────────┘
-                              │
-                              ▼
-                  ┌───────────────────────┐
-                  │ Report-Based AI Chat  │
-                  │ Ask Questions About   │
-                  │ Your Health Report    │
-                  └───────────┬───────────┘
-                              │
-                              ▼
-                  ┌───────────────────────┐
-                  │ Health Sage Dashboard │
-                  └───────────────────────┘
->>>>>>> 33179d7 (docs: update project architecture and workflow)
-# 📡 API Overview
-=======
 ```text
 health-sage/
 │
 ├── backend/
-│   │
 │   ├── config/
 │   │   └── db.js
 │   │
@@ -479,13 +234,10 @@ health-sage/
 │   │   ├── hash.js
 │   │   └── specialistMap.js
 │   │
-│   ├── .env
 │   ├── package.json
-│   ├── package-lock.json
 │   └── server.js
 │
 ├── frontend/
-│   │
 │   ├── public/
 │   │
 │   ├── src/
@@ -495,10 +247,7 @@ health-sage/
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   │
-│   ├── .env
-│   ├── index.html
 │   ├── package.json
-│   ├── package-lock.json
 │   └── vite.config.js
 │
 ├── .gitignore
@@ -512,90 +261,84 @@ health-sage/
 # 🔄 Application Workflow
 
 ```text
-                         ┌─────────────────┐
-                         │      USER       │
-                         └────────┬────────┘
-                                  │
-                                  ▼
-                    ┌─────────────────────────┐
-                    │ Upload Medical Report   │
-                    │       PDF File          │
-                    └────────────┬────────────┘
-                                 │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │    PDF Text Extraction  │
-                    └────────────┬────────────┘
-                                 │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │    AI Metric Extraction │
-                    │     Groq + Llama 3.3    │
-                    └────────────┬────────────┘
-                                 │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │   Abnormal Value        │
-                    │      Detection          │
-                    └────────────┬────────────┘
-                                 │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │     MongoDB Storage     │
-                    │ Reports + Metrics + User│
-                    └────────────┬────────────┘
-                                 │
-              ┌──────────────────┼───────────────────┐
-              │                  │                   │
-              ▼                  ▼                   ▼
-       ┌─────────────┐   ┌─────────────┐    ┌──────────────┐
-       │ AI Summary  │   │ Abnormal    │    │ Historical   │
-       │ Patient +   │   │   Metric    │    │ Health Trends│
-       │ Clinical    │   │ Detection   │    │              │
-       └──────┬──────┘   └──────┬──────┘    └──────┬───────┘
-              │                 │                  │
-              └─────────────────┼──────────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │ Specialist Recommendation│
-                    └────────────┬────────────┘
-                                 │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │ Nearby Hospitals / Clinics│
-                    └────────────┬────────────┘
-                                 │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │   Report-Based AI Chat  │
-                    │ Ask Questions About     │
-                    │ Your Medical Report     │
-                    └────────────┬────────────┘
-                                 │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │   Health Sage Dashboard │
-                    └─────────────────────────┘
+                     ┌───────────────┐
+                     │     USER      │
+                     └───────┬───────┘
+                             │
+                             ▼
+              ┌─────────────────────────┐
+              │ Upload Medical Report   │
+              │       PDF File          │
+              └────────────┬────────────┘
+                           │
+                           ▼
+              ┌─────────────────────────┐
+              │   PDF Text Extraction   │
+              └────────────┬────────────┘
+                           │
+                           ▼
+              ┌─────────────────────────┐
+              │ AI Metric Extraction    │
+              │ Groq + Llama 3.3 70B    │
+              └────────────┬────────────┘
+                           │
+                           ▼
+              ┌─────────────────────────┐
+              │ Abnormal Value Detection│
+              └────────────┬────────────┘
+                           │
+                           ▼
+              ┌─────────────────────────┐
+              │     MongoDB Storage     │
+              │ Reports + Metrics + User│
+              └────────────┬────────────┘
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+          ▼                ▼                ▼
+    ┌─────────────┐   ┌─────────────┐  ┌──────────────┐
+    │ AI Summary  │   │ Abnormal    │  │ Historical   │
+    │ Patient +   │   │ Metric      │  │ Health Trends│
+    │ Clinical    │   │ Detection   │  │              │
+    └──────┬──────┘   └──────┬──────┘  └──────┬───────┘
+           │                 │                 │
+           └─────────────────┼─────────────────┘
+                             │
+                             ▼
+              ┌─────────────────────────┐
+              │ Specialist Recommendation│
+              └────────────┬────────────┘
+                           │
+                           ▼
+              ┌─────────────────────────┐
+              │ Nearby Hospitals /      │
+              │ Clinics                 │
+              └────────────┬────────────┘
+                           │
+                           ▼
+              ┌─────────────────────────┐
+              │ Report-Based AI Chat    │
+              │ Ask Questions About     │
+              │ Your Medical Report     │
+              └────────────┬────────────┘
+                           │
+                           ▼
+              ┌─────────────────────────┐
+              │ Health Sage Dashboard   │
+              └─────────────────────────┘
 ```
 
->>>>>>> c1f513c (Update README)
 ---
 
 # ⚙️ Installation
 
 ## 1. Clone the Repository
 
-<<<<<<< HEAD
-``
-git clone https://github.com/Rohitdas07/health-sage.git
-=======
 ```bash
 git clone https://github.com/im-raj5832/health-sage.git
->>>>>>> c1f513c (Update README)
 ```
 
-```
+```bash
 cd health-sage
 ```
 
@@ -603,19 +346,19 @@ cd health-sage
 
 ## 2. Setup Backend
 
-```
+```bash
 cd backend
 ```
 
 Install dependencies:
 
-```
+```bash
 npm install
 ```
 
 Create a `.env` file:
 
-```
+```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
@@ -624,13 +367,13 @@ GROQ_API_KEY=your_groq_api_key
 
 Run the backend:
 
-```
+```bash
 npm run dev
 ```
 
 Backend:
 
-```
+```text
 http://localhost:5000
 ```
 
@@ -673,9 +416,6 @@ POST /api/auth/register
 POST /api/auth/login
 ```
 
-<<<<<<< HEAD
-```
-=======
 ## Reports
 
 ```text
@@ -693,7 +433,6 @@ POST /api/chat
 
 ---
 
->>>>>>> c1f513c (Update README)
 # 🧠 AI Capabilities
 
 Health Sage uses AI to transform extracted medical report information into structured and understandable insights.
@@ -757,21 +496,11 @@ Future versions may include:
 * Combined image and report analysis
 
 ---
-``
 
 ## 📷 Scan & Image Upload
 
 Future versions will allow users to upload supported medical images and reports for AI-assisted analysis.
 
-<<<<<<< HEAD
-```
-1. Fork the repository
-2. Create a new branch
-3. Make your changes
-4. Commit your changes
-5. Push the branch
-6. Create a Pull Request
-=======
 ### Planned Workflow
 
 ```text
@@ -781,14 +510,13 @@ Upload Medical Image or Report
      AI-Assisted Analysis
             │
             ▼
-  Identify Important Information
+ Identify Important Information
             │
             ▼
-     Generate Simple Explanation
+    Generate Simple Explanation
             │
             ▼
- Suggest Questions for Healthcare Professional
->>>>>>> c1f513c (Update README)
+Suggest Questions for Healthcare Professional
 ```
 
 ---
@@ -895,15 +623,13 @@ This project is licensed under the **MIT License**.
 
 <br>
 
-<a href="https://github.com/im-raj5832">
-<img src="https://img.shields.io/badge/GitHub-im--raj5832-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
-</a>
+<a href="https://github.com/Rohitdas07x"> <img src="https://img.shields.io/badge/GitHub-Rohitdas07x-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"> </a>
 
 <a href="https://www.linkedin.com/in/rohit-das-dev/">
 <img src="https://img.shields.io/badge/LinkedIn-Rohit%20Das-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
 </a>
 
-<a href="mailto:dasr35266@gmail.com">
+<a href="mailto:[dasr35266@gmail.com](mailto:dasr35266@gmail.com)">
 <img src="https://img.shields.io/badge/Email-dasr35266%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email">
 </a>
 
