@@ -1,7 +1,10 @@
 const express = require("express");
+
 const router = express.Router();
-const { chatAboutReport } = require("../../backend/controllers/chatController");
-const protect = require("../../backend/middleware/auth.middleware");
+
+const { chatAboutReport } = require("../controllers/chatController");
+
+const protect = require("../middleware/auth.middleware");
 
 router.post("/", protect, chatAboutReport);
 

@@ -2,7 +2,7 @@ const { extractMetricsAndSummaries } = require("../services/groqService");
 const Metric = require("../models/Metric");
 const pdfParse = require("pdf-parse");
 const Report = require("../models/Report");
-const User = require("../models/User");
+const User = require("../models/user");
 const hashText = require("../utils/hash");
 const crypto = require("crypto");
 
