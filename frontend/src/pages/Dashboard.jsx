@@ -15,20 +15,18 @@ function calculateHealthScore(reports) {
 
   const totalReports = reports.length;
 
-  const abnormalReports = reports.reduce(
-    (sum, report) => sum + (report.abnormalCount || 0),
+  const abnormalCount = reports.reduce(
+    (sum, report) => sum + Number(report.abnormalCount || 0),
     0
   );
 
-  const score = Math.max(
-    0,
-    Math.min(
-      100,
-      100 - (abnormalReports / Math.max(totalReports * 5, 1)) * 100
-    )
-  );
+  // Assume up to 10 abnormal markers per report
+  const maximumAbnormal = totalReports * 10;
 
-  return Math.round(score);
+  const score =
+    100 - (abnormalCount / Math.max(maximumAbnormal, 1)) * 100;
+
+  return Math.round(Math.max(0, Math.min(100, score)));
 }
 
 // ============================================================

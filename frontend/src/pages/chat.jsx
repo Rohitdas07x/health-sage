@@ -11,7 +11,12 @@ function Chat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Voice states
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   // Fetch user's reports
   useEffect(() => {
@@ -23,7 +28,6 @@ function Chat() {
 
         setReports(res.data || []);
 
-        // Automatically select first report
         if (res.data?.length > 0) {
           setSelectedReport(res.data[0]._id);
         }
@@ -49,13 +53,133 @@ function Chat() {
     });
   }, [history, loading]);
 
+  // Stop speech when component unmounts
+  useEffect(() => {
+    return () => {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
   // Change report
   const handleReportChange = (e) => {
     setSelectedReport(e.target.value);
 
-    // Clear previous conversation when report changes
     setHistory([]);
     setError("");
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  // Start / Stop Voice Recognition
+  const handleVoiceInput = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setError(
+        "Voice input is not supported in this browser. Please use Google Chrome or Microsoft Edge."
+      );
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    setError("");
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript =
+        event.results[0][0].transcript;
+
+      setMessage((prev) =>
+        prev ? `${prev} ${transcript}` : transcript
+      );
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Voice recognition error:", event);
+
+      if (event.error === "not-allowed") {
+        setError(
+          "Microphone permission was denied. Please allow microphone access."
+        );
+      } else if (event.error === "no-speech") {
+        setError("No speech detected. Please try again.");
+      } else {
+        setError(
+          "Voice input failed. Please try again."
+        );
+      }
+
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  // Speak AI response
+  const speakResponse = (text) => {
+    if (!("speechSynthesis" in window)) {
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(text);
+
+    speech.lang = "en-US";
+    speech.rate = 0.95;
+    speech.pitch = 1;
+
+    speech.onstart = () => {
+      setIsSpeaking(true);
+    };
+
+    speech.onend = () => {
+      setIsSpeaking(false);
+    };
+
+    speech.onerror = () => {
+      setIsSpeaking(false);
+    };
+
+    window.speechSynthesis.speak(speech);
+  };
+
+  // Stop AI voice
+  const stopSpeaking = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   };
 
   // Send message
@@ -64,6 +188,11 @@ function Chat() {
 
     if (!text || !selectedReport || loading) return;
 
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+
     const userMessage = {
       role: "user",
       content: text,
@@ -71,7 +200,6 @@ function Chat() {
 
     const previousHistory = [...history];
 
-    // Show user message immediately
     setHistory((prev) => [...prev, userMessage]);
     setMessage("");
     setLoading(true);
@@ -84,14 +212,22 @@ function Chat() {
         history: previousHistory,
       });
 
+      const reply =
+        res.data?.reply ||
+        "I couldn't generate a response. Please try again.";
+
       const assistantMessage = {
         role: "assistant",
-        content:
-          res.data?.reply ||
-          "I couldn't generate a response. Please try again.",
+        content: reply,
       };
 
-      setHistory((prev) => [...prev, assistantMessage]);
+      setHistory((prev) => [
+        ...prev,
+        assistantMessage,
+      ]);
+
+      // Read AI response aloud
+      speakResponse(reply);
     } catch (err) {
       console.error("Chat error:", err);
 
@@ -130,6 +266,11 @@ function Chat() {
     setHistory([]);
     setMessage("");
     setError("");
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   };
 
   const selectedReportData = reports.find(
@@ -141,9 +282,11 @@ function Chat() {
       <Sidebar />
 
       <main className="flex-1 min-w-0 flex flex-col">
+
         {/* Header */}
         <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 py-6 transition-colors">
           <div className="max-w-5xl mx-auto">
+
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -225,18 +368,24 @@ function Chat() {
                 </span>
               </div>
             )}
+
           </div>
         </div>
 
         {/* Chat area */}
         <div className="flex-1 px-4 md:px-8 py-6">
           <div className="max-w-5xl mx-auto">
+
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm transition-colors">
+
               {/* Messages */}
               <div className="min-h-[500px] max-h-[600px] overflow-y-auto p-5 md:p-6">
+
                 {history.length === 0 ? (
                   <div className="min-h-[450px] flex items-center justify-center">
+
                     <div className="text-center max-w-md">
+
                       <div className="w-16 h-16 mx-auto rounded-full bg-teal-50 dark:bg-teal-950/40 flex items-center justify-center text-3xl mb-4">
                         🩺
                       </div>
@@ -267,6 +416,12 @@ function Chat() {
                           </button>
                         ))}
                       </div>
+
+                      {/* Voice hint */}
+                      <div className="mt-6 text-xs text-slate-400 dark:text-slate-500">
+                        🎤 You can also ask your question using your voice.
+                      </div>
+
                     </div>
                   </div>
                 ) : (
@@ -287,6 +442,7 @@ function Chat() {
                               : "flex-row"
                           }`}
                         >
+
                           {/* Avatar */}
                           <div
                             className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm ${
@@ -299,15 +455,36 @@ function Chat() {
                           </div>
 
                           {/* Message */}
-                          <div
-                            className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                              msg.role === "user"
-                                ? "bg-teal-600 text-white rounded-tr-sm"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-tl-sm"
-                            }`}
-                          >
-                            {msg.content}
+                          <div className="flex flex-col gap-2">
+
+                            <div
+                              className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+                                msg.role === "user"
+                                  ? "bg-teal-600 text-white rounded-tr-sm"
+                                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-tl-sm"
+                              }`}
+                            >
+                              {msg.content}
+                            </div>
+
+                            {/* Speaker button */}
+                            {msg.role === "assistant" && (
+                              <button
+                                onClick={() =>
+                                  isSpeaking
+                                    ? stopSpeaking()
+                                    : speakResponse(msg.content)
+                                }
+                                className="self-start text-xs px-2.5 py-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-teal-600 transition"
+                              >
+                                {isSpeaking
+                                  ? "⏹ Stop"
+                                  : "🔊 Listen"}
+                              </button>
+                            )}
+
                           </div>
+
                         </div>
                       </div>
                     ))}
@@ -316,11 +493,13 @@ function Chat() {
                     {loading && (
                       <div className="flex justify-start mb-5">
                         <div className="flex gap-3">
+
                           <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                             🩺
                           </div>
 
                           <div className="bg-slate-100 dark:bg-slate-800 px-4 py-3 rounded-2xl rounded-tl-sm">
+
                             <div className="flex gap-1">
                               <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
 
@@ -338,6 +517,7 @@ function Chat() {
                                 }}
                               ></span>
                             </div>
+
                           </div>
                         </div>
                       </div>
@@ -346,6 +526,7 @@ function Chat() {
                     <div ref={messagesEndRef} />
                   </>
                 )}
+
               </div>
 
               {/* Error */}
@@ -359,10 +540,14 @@ function Chat() {
 
               {/* Input */}
               <div className="border-t border-slate-200 dark:border-slate-800 p-4 md:p-5">
+
                 <div className="flex gap-2">
+
                   <textarea
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(e) =>
+                      setMessage(e.target.value)
+                    }
                     onKeyDown={handleKeyDown}
                     placeholder={
                       selectedReport
@@ -374,6 +559,25 @@ function Chat() {
                     className="flex-1 resize-none border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed"
                   />
 
+                  {/* Microphone */}
+                  <button
+                    onClick={handleVoiceInput}
+                    disabled={!selectedReport || loading}
+                    title={
+                      isListening
+                        ? "Stop listening"
+                        : "Ask using voice"
+                    }
+                    className={`px-4 py-3 text-sm font-medium rounded-lg transition ${
+                      isListening
+                        ? "bg-red-500 text-white hover:bg-red-600"
+                        : "bg-slate-800 dark:bg-slate-700 text-white hover:bg-slate-700 dark:hover:bg-slate-600"
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {isListening ? "⏹️" : "🎤"}
+                  </button>
+
+                  {/* Ask */}
                   <button
                     onClick={handleSend}
                     disabled={
@@ -385,14 +589,38 @@ function Chat() {
                   >
                     {loading ? "..." : "Ask"}
                   </button>
+
                 </div>
+
+                {/* Voice status */}
+                {isListening && (
+                  <div className="mt-2 flex items-center gap-2 text-xs text-red-500">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    Listening... Speak your question
+                  </div>
+                )}
+
+                {isSpeaking && (
+                  <div className="mt-2 flex items-center gap-2 text-xs text-teal-600 dark:text-teal-400">
+                    <span className="animate-pulse">🔊</span>
+                    AI is speaking...
+                    <button
+                      onClick={stopSpeaking}
+                      className="underline hover:no-underline"
+                    >
+                      Stop
+                    </button>
+                  </div>
+                )}
 
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-3">
                   AI-generated information is for educational purposes only.
                   Always consult a qualified healthcare professional for
                   medical advice.
                 </p>
+
               </div>
+
             </div>
           </div>
         </div>
