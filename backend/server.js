@@ -19,7 +19,7 @@ const app = express();
 // MIDDLEWARE
 // ============================================================
 
-app.use(cors());
+app.use(cors({ origin: "https://health-sage-ai.up.railway.app"}));
 
 app.use(express.json());
 
