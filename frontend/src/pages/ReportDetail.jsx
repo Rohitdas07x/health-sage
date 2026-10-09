@@ -630,7 +630,7 @@ function HospitalSection({
             "https://health-sage-ai.up.railway.app/api";
 
           const response = await fetch(
-            `${API_URL}/reports/hospitals`,
+            `${import.meta.env.VITE_API_URL}/reports/hospitals`,
             {
               method: "POST",
 
