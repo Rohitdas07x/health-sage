@@ -1,3 +1,4 @@
+import api from "../api/axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -601,8 +602,7 @@ function HospitalSection({
       )
     );
   };
-
-  const findHospitals = () => {
+const findHospitals = () => {
     if (!navigator.geolocation) {
       setError(
         "Location services are not supported by your browser."
@@ -618,137 +618,46 @@ function HospitalSection({
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          const {
+          const { latitude, longitude } = position.coords;
+
+          const res = await api.post("/reports/hospitals", {
             latitude,
             longitude,
-          } = position.coords;
+          });
 
-          const token =
-            localStorage.getItem("token");
+          const data = res.data;
 
-          const API_URL =
-            "https://health-sage-ai.up.railway.app/api";
+          const hospitalList = data.hospitals || data.places || [];
 
-          const response = await fetch(
-            `${import.meta.env.VITE_API_URL}/reports/hospitals`,
-            {
-              method: "POST",
+          const hospitalsWithDistance = hospitalList.map((hospital) => {
+            const lat = Number(hospital.lat ?? hospital.latitude);
+            const lon = Number(hospital.lon ?? hospital.longitude);
 
-              headers: {
-                "Content-Type":
-                  "application/json",
+            const hasValidLocation =
+              Number.isFinite(lat) && Number.isFinite(lon);
 
-                ...(token
-                  ? {
-                      Authorization:
-                        `Bearer ${token}`,
-                    }
-                  : {}),
-              },
-
-              body: JSON.stringify({
-                latitude,
-                longitude,
-              }),
-            }
-          );
-
-          const contentType =
-            response.headers.get(
-              "content-type"
-            ) || "";
-
-          if (
-            !contentType.includes(
-              "application/json"
-            )
-          ) {
-            const text =
-              await response.text();
-
-            console.error(
-              "Server returned an invalid response:",
-              text
-            );
-
-            throw new Error(
-              "Server returned an invalid response. Please check the backend API route."
-            );
-          }
-
-          const data =
-            await response.json();
-
-          if (!response.ok) {
-            throw new Error(
-              data.message ||
-                "Could not find hospitals"
-            );
-          }
-
-          const hospitalList =
-            data.hospitals ||
-            data.places ||
-            [];
-
-          const hospitalsWithDistance =
-            hospitalList.map(
-              (hospital) => {
-                const lat =
-                  Number(
-                    hospital.lat ??
-                      hospital.latitude
-                  );
-
-                const lon =
-                  Number(
-                    hospital.lon ??
-                      hospital.longitude
-                  );
-
-                const hasValidLocation =
-                  Number.isFinite(lat) &&
-                  Number.isFinite(lon);
-
-                return {
-                  ...hospital,
-                  lat,
-                  lon,
-
-                  distance:
-                    hasValidLocation
-                      ? calculateDistance(
-                          latitude,
-                          longitude,
-                          lat,
-                          lon
-                        )
-                      : null,
-                };
-              }
-            );
+            return {
+              ...hospital,
+              lat,
+              lon,
+              distance: hasValidLocation
+                ? calculateDistance(latitude, longitude, lat, lon)
+                : null,
+            };
+          });
 
           hospitalsWithDistance.sort(
-            (a, b) =>
-              (a.distance ??
-                Infinity) -
-              (b.distance ??
-                Infinity)
+            (a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity)
           );
 
-          setHospitals(
-            hospitalsWithDistance
-          );
-
+          setHospitals(hospitalsWithDistance);
           setSearched(true);
         } catch (err) {
-          console.error(
-            "Hospital search error:",
-            err
-          );
+          console.error("Hospital search error:", err);
 
           setError(
-            err.message ||
+            err.response?.data?.message ||
+              err.message ||
               "Could not find nearby hospitals."
           );
 
@@ -759,10 +668,7 @@ function HospitalSection({
       },
 
       (geoError) => {
-        console.error(
-          "Geolocation error:",
-          geoError
-        );
+        console.error("Geolocation error:", geoError);
 
         setSearching(false);
 
