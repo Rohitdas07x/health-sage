@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://health-sage-ai.up.railway.app/api",
+  baseURL: "https://health-sage-production.up.railway.app/api",
   headers: {
     "Content-Type": "application/json",
   },
